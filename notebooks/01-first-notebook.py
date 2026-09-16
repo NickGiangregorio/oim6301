@@ -49,6 +49,24 @@ def _():
     return (mo,)
 
 
+@app.cell
+def _():
+    1+4
+    return
+
+
+@app.cell
+def _():
+    print ("hello World!")
+    return
+
+
+@app.cell
+def _():
+    print("Hello, World!")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -96,8 +114,14 @@ def _(mo):
 @app.cell
 def _():
     freight_charges = [16.75, 22.25, 25.00, 20.25, 36.25]
-    freight_charges
+
     return (freight_charges,)
+
+
+@app.cell
+def _(freight_charges):
+    print(freight_charges)
+    return
 
 
 @app.cell(hide_code=True)
@@ -118,6 +142,24 @@ def _(mo):
     *The number in brackets is an **index**, and Python counts from zero, so
     `freight_charges[0]` is the first one.*
     """)
+    return
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[0]
+    return
+
+
+@app.cell
+def _(freight_charges):
+    len(freight_charges)
+    return
+
+
+@app.cell
+def _(freight_charges):
+    sum(freight_charges)
     return
 
 
@@ -148,6 +190,11 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -167,6 +214,11 @@ def _(mo):
 
     📖 Handbook: Python §1 Variables and values
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
@@ -203,6 +255,84 @@ def _(mo):
     6. `orders * 2`, then `orders + freight_charges`. Neither one is an error.
     7. `sorted(freight_charges)`, then `sorted(freight_charges, reverse=True)`. What did `reverse=True` change, and did `freight_charges` itself change?
     """)
+    return
+
+
+@app.cell
+def _():
+    print ("I Think that it will be an error ")
+    return
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[-1]
+    return
+
+
+@app.cell
+def _():
+    print ("I think that it will bring up the vaulues that come up before 3")
+    return
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[:3]
+    return
+
+
+@app.cell
+def _():
+    print ("They are going to be the same value because we are brining up the same value in the list") 
+    return
+
+
+@app.cell
+def _(freight_charges, orders):
+    orders[0] and freight_charges[0]
+    return
+
+
+@app.cell
+def _():
+    print ("did it count how many values there are")
+    return
+
+
+@app.cell
+def _():
+    category = "confections"
+    len(category)
+    return
+
+
+@app.cell
+def _():
+    print("it will add all of the values together")
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _(orders):
+    sum(orders)
+    return
+
+
+@app.cell
+def _(orders):
+    orders * 2, 
+    return
+
+
+@app.cell
+def _(freight_charges, orders):
+    orders + freight_charges
     return
 
 
