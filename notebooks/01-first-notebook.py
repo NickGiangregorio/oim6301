@@ -159,7 +159,14 @@ def _(freight_charges):
 
 @app.cell
 def _(freight_charges):
-    sum(freight_charges)
+    total = sum(freight_charges)
+    total
+    return (total,)
+
+
+@app.cell
+def _(total):
+    total
     return
 
 
@@ -192,6 +199,25 @@ def _(mo):
 
 @app.cell
 def _():
+    print ("I think it will change the value to 999.99 everywhere that 16.75 orginaly was")
+    return
+
+
+@app.cell
+def _():
+    print("All of the cells below it will lose their values")
+    return
+
+
+@app.cell
+def _():
+    print("there will be an error because there is already a value for total")
+    return
+
+
+@app.cell
+def _():
+    print("I belive it will still run because the data is already in the code")
     return
 
 
@@ -304,17 +330,18 @@ def _():
 def _():
     category = "confections"
     len(category)
+    return (category,)
+
+
+@app.cell
+def _(category):
+    len(category)
     return
 
 
 @app.cell
 def _():
-    print("it will add all of the values together")
-    return
-
-
-@app.cell
-def _():
+    print("it will add all of the values of the orders together")
     return
 
 
@@ -325,14 +352,44 @@ def _(orders):
 
 
 @app.cell
+def _():
+    print("I think it will multiply all the values by 2")
+    return
+
+
+@app.cell
 def _(orders):
     orders * 2, 
     return
 
 
 @app.cell
+def _():
+    print("This will just list all the values of order and freight")
+    return
+
+
+@app.cell
 def _(freight_charges, orders):
     orders + freight_charges
+    return
+
+
+@app.cell
+def _():
+    print ("I think reverse = true will just reverse the order and keep it reversed whenever you pull up the data. The values will not change")
+    return
+
+
+@app.cell
+def _(freight_charges):
+    sorted(freight_charges)
+    return
+
+
+@app.cell
+def _(freight_charges):
+    sorted (freight_charges, reverse=True)
     return
 
 
@@ -376,6 +433,24 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    print("Line one just combines the two values onto one line")
+    return
+
+
+@app.cell
+def _():
+    "16.75" + "22.25"
+    return
+
+
+@app.cell
+def _():
+    print("line 2 generates an error")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -407,6 +482,42 @@ def _(mo):
 
     📖 Handbook: Python §3 Expressions and operators
     """)
+    return
+
+
+@app.cell
+def _():
+    print("No the first charge is not above 20")
+    return
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[0] > 20
+    return
+
+
+@app.cell
+def _():
+    print("yes the last charge is the largest")
+    return
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[-1] == max(freight_charges)
+    return
+
+
+@app.cell
+def _(freight_charges):
+    type(freight_charges[0])
+    return
+
+
+@app.cell
+def _(freight_charges):
+    type(freight_charges[-1])
     return
 
 
@@ -448,6 +559,13 @@ def _(mo):
     return
 
 
+@app.cell
+def _(freight_charges, total):
+    average = total / len(freight_charges)
+    print(f"The total freight was ${total:.2f}, and the average charge was ${average:.2f} .")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -465,6 +583,12 @@ def _(freight_charges):
         if charge > 20:
             over_20.append(charge)
     over_20
+    return
+
+
+@app.cell
+def _():
+    print ("orders 0-4 paid more than 20 in freight")
     return
 
 
@@ -495,6 +619,29 @@ def _(mo):
 
     With the list as it started, your sentence should show three charges and `$59.25`.
     """)
+    return
+
+
+@app.cell
+def _(freight_charges):
+    below_25 = []
+    for _charge in freight_charges:  
+        if _charge < 25:
+            below_25.append(_charge)
+    below_25
+
+    return (below_25,)
+
+
+@app.cell
+def _(below_25):
+    print(f"There are {len(below_25)} charges below 25, totaling ${sum(below_25):.2f}.")
+    return
+
+
+@app.cell
+def _():
+    print("25 joined the list beacause it is equal to 25. THis totaled my value to 84.25. It also updated the sentence on its own")
     return
 
 
@@ -536,6 +683,24 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    print("there is nothing to import named pandsa so it causes an error and lets you know that you have made a spelling error")
+    return
+
+
+@app.cell
+def _():
+    print("The last line tells you that there is no file with that name")
+    return
+
+
+@app.cell
+def _():
+    print("The last line tells me that the bracket was never closed")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -545,6 +710,18 @@ def _(mo):
 
     `max(["9.50", "16.75", "22.25"])`
     """)
+    return
+
+
+@app.cell
+def _():
+    print("I think this will  print the highest value")
+    return
+
+
+@app.cell
+def _():
+    max(["9.50", "16.75", "22.25"])
     return
 
 
@@ -594,6 +771,24 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    print("Python highlights the 3rd line as the one with an error")
+    return
+
+
+@app.cell
+def _():
+    print("I would change line 1 due to pending being mixed in with a list of numbers")
+    return
+
+
+@app.cell
+def _():
+    print("I would remove pending from the list of numbers")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -620,6 +815,18 @@ def _(mo):
 
     The square brackets inside `_ax.bar(...)` are a **list comprehension**, which **iterates** over `orders` and turns each number into text.
     """)
+    return
+
+
+@app.cell
+def _(freight_charges, orders):
+    import matplotlib.pyplot as plt
+
+    _fig, _ax = plt.subplots(figsize=(6, 2.6))
+    _ax.bar([str(_o) for _o in orders], freight_charges)
+    _ax.set_ylabel("freight")
+    _fig
+
     return
 
 
