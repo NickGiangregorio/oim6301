@@ -158,28 +158,8 @@ def _(freight_charges):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(freight_charges):
     sorted(freight_charges)
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
     return
 
 
@@ -252,7 +232,24 @@ def _(mo):
 @app.cell
 def _():
     charges = [16.75, 22.25, 25.00, 20.25, 36.25]
-    charges 
+
+    return (charges,)
+
+
+@app.cell
+def _(charges):
+    charges[0]
+    return
+
+
+@app.cell
+def _(charges):
+    total = 0
+    for charge in charges:
+        if charge < 25:
+            total = total + charge
+    total
+
     return
 
 
@@ -297,12 +294,13 @@ def _(mo):
     own, added with the **+** button.
 
     **A ·**
+    If a score satifies both of the test then the first test satisfies it and it gives an 'A' because the second test is only there f the first one fails
 
-    **C ·**
+    **C Append always adds exaclty one item,even if you give it a whole list it wil come back as one item ·**
 
-    **D ·**
+    **D Tickers.sort() changes the orignal list and returns none while sorted(tickers) creates and returns a new sorted list ·**
 
-    **E ·**
+    **E when you want changes made through one name to show up through the other name·**
     """)
     return
 
@@ -331,7 +329,7 @@ def _(mo):
 
 @app.cell
 def _():
-    score = 95
+    score = 90
 
     if score >= 90:
         print('A')
@@ -366,6 +364,33 @@ def _(mo):
 def _():
     statuses = ["shipped", "pending", "shipped", "cancelled", "shipped"]
     statuses
+    return (statuses,)
+
+
+@app.cell
+def _(statuses):
+    shipped_count = 0
+    for status in statuses:
+        if status == "shipped":
+            shipped_count = shipped_count + 1
+    shipped_count
+    return (shipped_count,)
+
+
+@app.cell
+def _(statuses):
+    not_shipped_count = 0
+    for stat in statuses:
+        if stat != "shipped":
+            not_shipped_count = not_shipped_count + 1
+    not_shipped_count
+    return
+
+
+@app.cell
+def _(shipped_count, statuses):
+    percent_shipped = shipped_count / len(statuses) * 100
+    percent_shipped
     return
 
 
@@ -393,8 +418,14 @@ def _(mo):
 @app.cell
 def _():
     order_lines = ["notebook", "pen"]
-    order_lines.append(["stapler", "tape"])
+    order_lines.extend(["stapler", "tape"])
     len(order_lines)
+    return (order_lines,)
+
+
+@app.cell
+def _(order_lines):
+    order_lines[3]
     return
 
 
@@ -425,6 +456,12 @@ def _():
     print(sorted(tickers))
     print(tickers.sort())
     tickers
+    return (tickers,)
+
+
+@app.cell
+def _(tickers):
+    sorted(tickers, reverse=True)
     return
 
 
@@ -458,9 +495,23 @@ def _(mo):
 @app.cell
 def _():
     prices = [12.50, 8.00, 19.99]
-    sale_prices = prices
+    sale_prices = prices[:]
     sale_prices.append(4.99)
     prices
+    return prices, sale_prices
+
+
+@app.cell
+def _(sale_prices):
+    for i in range(len(sale_prices)):
+        sale_prices[i] = sale_prices[i] * 0.9
+    sale_prices
+    return
+
+
+@app.cell
+def _(prices, sale_prices):
+    prices is sale_prices
     return
 
 
@@ -573,6 +624,19 @@ def _(mo):
     return
 
 
+@app.cell
+def _(first_order):
+    first_order["Freight"]
+    return
+
+
+@app.cell
+def _():
+    print("The first one runs while the next two fail the mesage says KeyError")
+
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -662,6 +726,61 @@ def _(mo):
     return
 
 
+@app.cell
+def _(orders):
+    total_freight = 0
+    for order in orders:
+        total_freight = total_freight + order["Freight"]
+    total_freight
+    return
+
+
+@app.cell
+def _():
+    print ("for question 1 my agent used a loop and a running total")
+    return
+
+
+@app.cell
+def _(orders):
+    no_shipped_date = 0
+    for shipment in orders:
+        if shipment["ShippedDate"] is None:
+            no_shipped_date = no_shipped_date + 1
+    no_shipped_date
+    return
+
+
+@app.cell
+def _():
+    print("for question 2 my agent used a loop and a condition to test for missing values")
+    return
+
+
+@app.cell
+def _(orders):
+    largest_freight = 0
+    largest_order_id = 0
+    for entry in orders:
+        if entry["Freight"] > largest_freight:
+            largest_freight = entry["Freight"]
+            largest_order_id = entry["OrderID"]
+    print(f"Order {largest_order_id} has the largest freight at : {largest_freight}")
+    return
+
+
+@app.cell
+def _():
+    print ("for question 3 my agent used a loop, a condition, a running total and an f-string")
+    return
+
+
+@app.cell
+def _():
+    print("the three orders with no ship date all have order dates from 2018 while the others are from 2016")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -684,8 +803,7 @@ def _(mo):
     mo.md(r"""
     *One row is ...*
 
-    *(Replace this line with your own sentence. If this cell shows you code instead of
-    text, use the cell menu to turn it into a markdown cell.)*
+    One row is a horizontal line of information in a table about an item, person or thing
     """)
     return
 
@@ -701,10 +819,10 @@ def _(mo):
     write yourself.
 
     1. **By hand, no agent. Markdown cell.** Write how you would do it in plain words,
-       three or four lines. *"For each holding, multiply... then..."*
-    2. **Ask your agent to write it.** Read what comes back before you keep it.
+       three or four lines. *"For each holding, multiply... then..."* I would mulpty each share by the price per share Then  I would sum all the values of each stock together
+    2. **Ask your agent to write it.** Read what comes back before you keep it. start running total zero, muliply each share by the price per share, Then that cost to the running total and do it for every holding, After the last holding the running total is the final sum
     3. **Ask it to explain every detail.** Pick the line you would not have written and
-       ask what it does and why it is there.
+       ask what it does and why it is there. The line I would not have chosen would be start a running total of 0. starting at 0 makes sure that the prices are starting at 0 before I start to do any multplying and adding
     4. **Ask it to set you a similar problem**, then solve that one yourself.
 
     **Check yourself: $116,302.70.**
@@ -723,6 +841,43 @@ def _():
         {"Symbol": "TSLA", "Shares": 150, "Price": 255.70},
     ]
     portfolio
+    return (portfolio,)
+
+
+@app.cell
+def _(portfolio):
+    portfolio_total = 0
+    for holding in portfolio:
+        position_cost = holding["Shares"] * holding["Price"]
+        portfolio_total = portfolio_total + position_cost
+    portfolio_total
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    inventory = [
+        {"Item": "Boxes", "Quantity": 500, "UnitCost": 0.75},
+        {"Item": "Tape", "Quantity": 200, "UnitCost": 1.20},
+        {"Item": "Labels", "Quantity": 1000, "UnitCost": 0.05},
+        {"Item": "Pallets", "Quantity": 40, "UnitCost": 12.50},
+        {"Item": "Bubble Wrap", "Quantity": 150, "UnitCost": 2.30},
+    ]
+    return (inventory,)
+
+
+@app.cell
+def _(inventory):
+    inventory_total = 0
+    for item in inventory:
+        item_value = item["Quantity"] * item["UnitCost"]
+        inventory_total = inventory_total + item_value
+    inventory_total
     return
 
 
