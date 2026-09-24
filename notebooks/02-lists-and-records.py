@@ -232,7 +232,6 @@ def _(mo):
 @app.cell
 def _():
     charges = [16.75, 22.25, 25.00, 20.25, 36.25]
-
     return (charges,)
 
 
@@ -249,7 +248,6 @@ def _(charges):
         if charge < 25:
             total = total + charge
     total
-
     return
 
 
@@ -633,7 +631,6 @@ def _(first_order):
 @app.cell
 def _():
     print("The first one runs while the next two fail the mesage says KeyError")
-
     return
 
 
@@ -929,6 +926,66 @@ def _(mo):
         _where = f"could not write into {_data_dir.name}/: {_error}"
 
     _where
+    return
+
+
+@app.cell
+def _(mo):
+    file_path = mo.notebook_dir().parent / "data" / "portfolio.csv"
+    lines = open(file_path).readlines()
+
+    file_total = 0
+    for line in lines[1:]:
+        parts = line.strip().split(",")
+        name = parts[0]
+        shares = int(parts[1])
+        price = float(parts[2])
+        cost = shares * price
+        file_total = file_total + cost
+        print(name, shares, price)
+
+    print(f"Total cost: ${file_total:.2f}")
+    return (cost,)
+
+
+@app.cell
+def _():
+    print("I asked what split does and i learned that split cuts the texts into pieces wherever there is a comma and gives back a list of pieces" )
+    return
+
+
+@app.cell
+def _(mo):
+    _supply_lines = ["name,quantity,price"]
+    for _supply in [
+        ("Paper", 20, 4.50), ("Pens", 100, 0.75), ("Folders", 50, 1.20),
+        ("Staplers", 10, 8.99), ("Markers", 30, 1.50),
+    ]:
+        _supply_lines.append(f"{_supply[0]},{_supply[1]},{_supply[2]}")
+
+    _supplies_dir = mo.notebook_dir().parent / "data"
+    _supplies_dir.mkdir(parents=True, exist_ok=True)
+    supplies_csv = _supplies_dir / "supplies.csv"
+    supplies_csv.write_text("\n".join(_supply_lines) + "\n")
+    return
+
+
+@app.cell
+def _(mo):
+    supplies_path = mo.notebook_dir().parent / "data" / "supplies.csv"
+    supply_lines_read = open(supplies_path).readlines()
+
+    supplies_total = 0
+    for supply_line in supply_lines_read[1:]:
+        supply_parts = supply_line.strip().split(",")
+        supply_name = supply_parts[0]
+        supply_qty = int(supply_parts[1])
+        supply_price = float(supply_parts[2])
+        supply_cost = supply_qty * supply_price
+        supplies_total = supplies_total + supply_cost
+        print(supply_name, supply_qty, supply_price)
+
+    print(f"Total spent: ${supplies_total:.2f}")
     return
 
 
