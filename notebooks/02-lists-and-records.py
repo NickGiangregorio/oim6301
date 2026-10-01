@@ -100,8 +100,8 @@ def _():
 
 @app.cell
 def _(cost, tax):
-    total_cost = float(cost) + float(tax)
-    print (total_cost )
+    total_cost_2 = float(cost) + float(tax)
+    print (total_cost_2 )
     return
 
 
@@ -243,11 +243,11 @@ def _(charges):
 
 @app.cell
 def _(charges):
-    total = 0
-    for charge in charges:
-        if charge < 25:
-            total = total + charge
-    total
+    total_2 = 0
+    for charge_2 in charges:
+        if charge_2 < 25:
+            total_2 = total_2 + charge_2
+    total_2
     return
 
 
