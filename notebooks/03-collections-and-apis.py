@@ -159,11 +159,11 @@ def _(mo):
 
     **B  France, Germany, U.S.A and Brazil had the most at 4 orders each
 
-    **C ·**
+    **C ·** list- Lines can be added or removed, set- each customer appears once , dictionary- look up count by product , tuple list cannot change
 
-    **D ·**
+    **D ·** I would much rather read it like a tuple where they are ordered by postion and not read by name.
 
-    **G ·**
+    **G ·** Babson college is actually in flordia so selecting [0] would of had us looking at flordia
     """)
     return
 
@@ -468,7 +468,7 @@ def _(mo):
 
     1. **By hand, no agent.** In the written answers cell, state which of the two shapes you would rather work with for this question, and why.
     2. **Add a cell** that computes what it costs to buy the whole portfolio. Unpack each holding into three names in the `for` line, and start each name with an underscore: `for _symbol, _shares, _price in holdings:`.
-    3. **Then ask your agent** for its version, and ask it to explain the line you would not have written.
+    3. **Then ask your agent** for its version, and ask it to explain the line you would not have written. I would have forgot to write += instead of would have just put =
 
     *Check yourself: $116,302.70, the same as notebook 2.*
 
@@ -488,6 +488,31 @@ def _():
         ("TSLA", 150, 255.70),
     ]
     holdings
+    return (holdings,)
+
+
+@app.cell
+def _(holdings):
+    holdings_cost = 0
+    for _symbol, _shares, _price in holdings:
+        holdings_cost += _shares * _price
+    holdings_cost
+    return
+
+
+@app.cell
+def _(holdings):
+    holding_costs = {}
+    for _symbol, _shares, _price in holdings:
+        holding_costs[_symbol] = _shares * _price
+
+    costliest_ticker = ""
+    costliest_cost = 0
+    for _symbol, _cost in holding_costs.items():
+        if _cost > costliest_cost:
+            costliest_cost = _cost
+            costliest_ticker = _symbol
+    costliest_ticker, costliest_cost
     return
 
 
@@ -713,6 +738,16 @@ def _(requests):
 def _(wellesley_reply):
     wellesley_place = wellesley_reply.json()["results"][0]
     wellesley_place["latitude"], wellesley_place["longitude"], wellesley_place["admin1"]
+    return (wellesley_place,)
+
+
+@app.cell
+def _(requests):
+    babson_park_reply = requests.get(
+        "https://geocoding-api.open-meteo.com/v1/search?name=Babson Park&count=5",
+        timeout=10,
+    )
+    babson_park_reply.status_code, babson_park_reply.json()
     return
 
 
@@ -723,6 +758,23 @@ def _(mo):
 
     **Going further.** Use F's coordinates to ask for Wellesley's current temperature. Build the address with an f-string, so that changing the town changes the forecast.
     """)
+    return
+
+
+@app.cell
+def _(requests, wellesley_place):
+    wellesley_lat = wellesley_place["latitude"]
+    wellesley_lon = wellesley_place["longitude"]
+
+    wellesley_url = (
+        "https://api.open-meteo.com/v1/forecast"
+        f"?latitude={wellesley_lat}&longitude={wellesley_lon}"
+        "&current=temperature_2m,wind_speed_10m"
+        "&temperature_unit=fahrenheit&wind_speed_unit=mph"
+        "&timezone=America/New_York"
+    )
+    wellesley_reply_weather = requests.get(wellesley_url, timeout=10)
+    wellesley_reply_weather.status_code, wellesley_reply_weather.json()
     return
 
 
