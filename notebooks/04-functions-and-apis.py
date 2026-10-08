@@ -188,6 +188,34 @@ def _(mo):
     return
 
 
+@app.cell
+def _(holdings, retirement_holdings):
+    def count_shares(portfolio):
+        total_shares = 0
+        for stock in portfolio:
+            total_shares += stock[1]
+        return total_shares
+
+    count_shares(holdings), count_shares(retirement_holdings)
+    return
+
+
+@app.cell
+def _(holdings, retirement_holdings):
+    def find_largest(portfolio):
+        best_ticker = portfolio[0][0]
+        best_cost = portfolio[0][1] * portfolio[0][2]
+        for stock in portfolio:
+            stock_cost = stock[1] * stock[2]
+            if stock_cost > best_cost:
+                best_cost = stock_cost
+                best_ticker = stock[0]
+        return best_ticker, best_cost
+
+    find_largest(holdings), find_largest(retirement_holdings)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -195,6 +223,25 @@ def _(mo):
 
     Copy `count_shares` into a new cell under a new name, and put `print(...)` where the `return` was. Call it and keep the result in a name. In a markdown cell under it, answer: what does that name hold, and what could the next cell do with it?
     """)
+    return
+
+
+@app.cell
+def _(holdings):
+    def show_shares(portfolio):
+        total_shares = 0
+        for stock in portfolio:
+            total_shares += stock[1]
+        print(total_shares)
+
+    kept_result = show_shares(holdings)
+    kept_result
+    return
+
+
+@app.cell
+def _():
+    print ("The name only holds a value if a new cell tried to do something with it then it woulndt be able to do anything usefull")
     return
 
 
@@ -333,6 +380,69 @@ def _(mo):
     return
 
 
+@app.cell
+def _(requests):
+    def get_temperature(town):
+        geo_reply = requests.get(
+            "https://geocoding-api.open-meteo.com/v1/search",
+            params={"name": town, "count": 1},
+            timeout=10,
+        )
+        place = geo_reply.json()["results"][0]
+
+        weather_reply = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": place["latitude"],
+                "longitude": place["longitude"],
+                "current_weather": True,
+                "temperature_unit": "fahrenheit",
+            },
+            timeout=10,
+        )
+        return weather_reply.json()["current_weather"]["temperature"]
+
+    get_temperature("Wellesley")
+    return (get_temperature,)
+
+
+@app.cell
+def _(get_temperature):
+    get_temperature("Babson Park")
+    return
+
+
+@app.cell
+def _(requests):
+    def get_temperature_in_state(town, state):
+        geo_reply = requests.get(
+            "https://geocoding-api.open-meteo.com/v1/search",
+            params={"name": town, "count": 10},
+            timeout=10,
+        )
+        results = geo_reply.json()["results"]
+
+        place = results[0]
+        for result in results:
+            if result["admin1"] == state:
+                place = result
+
+        weather_reply = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": place["latitude"],
+                "longitude": place["longitude"],
+                "current_weather": True,
+                "temperature_unit": "fahrenheit",
+            },
+            timeout=10,
+        )
+        return weather_reply.json()["current_weather"]["temperature"]
+
+    get_temperature_in_state("Babson Park", "Massachusetts")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -358,6 +468,39 @@ def _(mo):
 
     **Going further.** Write `town_history(name)`, which takes a town's name, makes both requests, and returns the history.
     """)
+    return
+
+
+@app.cell
+def _(requests):
+    wellesley_history = requests.get(
+        "https://oim.zhili.dev/ma/towns/317/history",
+        params={"fiscal_year": 2026},
+        timeout=10,
+    ).json()
+    wellesley_history
+    return
+
+
+@app.cell
+def _(requests):
+    def town_history(name):
+        town_record = requests.get(
+            "https://oim.zhili.dev/ma/towns",
+            params={"name": name},
+            timeout=10,
+        ).json()["items"][0]
+
+        dor_code = town_record["dor_code"]
+
+        history_reply = requests.get(
+            f"https://oim.zhili.dev/ma/towns/{dor_code}/history",
+            params={"fiscal_year": 2026},
+            timeout=10,
+        )
+        return history_reply.json()
+
+    town_history("Needham")
     return
 
 
@@ -439,6 +582,30 @@ def _(mo):
 
     **Going further.** Which town has the highest average single-family tax bill in the state, and which the lowest?
     """)
+    return
+
+
+@app.cell
+def _(get_page):
+    def get_all_towns():
+        first_page = get_page(1)
+        all_towns = first_page["items"]
+        pages = first_page["pagination"]["pages"]
+
+        for page_number in range(2, pages + 1):
+            next_page = get_page(page_number)
+            for town in next_page["items"]:
+                all_towns.append(town)
+
+        return all_towns
+
+    all_towns = get_all_towns()
+    len(all_towns), all_towns[0], all_towns[-1]
+    return
+
+
+@app.cell
+def _():
     return
 
 
