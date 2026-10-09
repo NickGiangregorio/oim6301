@@ -42,6 +42,12 @@ def _(mo):
     return
 
 
+@app.cell
+def _():
+    print ("A finacial advisor or investor  would use this when one of their clients stocks is no longer the percentage of their portfolio that they planned on it to be. for example if apple stock is supposed to be 20 percent of the portfolio but the price sky rockets it is now more then 20%. This would cause a rebalancing which would entail selling apple shares untill it is back closer to 20 percent of the portfolio")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -54,6 +60,22 @@ def _(mo):
 
     *Commit this notebook with the message `mp1: plan before AI`.*
     """)
+    return
+
+
+@app.cell
+def _():
+    print ("Step 1: Add all of the stock together along with the 5,000 cash to get the portfolio value" 
+              "Step 2: I will calculate how much should be invested into each stock based off its targeted percentage" 
+              "Step 3: I will divide that percentage by each stocks price to see how many shares I should buy per stock" 
+              "Step 4: I will then see the difference in shares that I have versus what I should"
+              "Step 5: I will update the cash after each trade then calculate what percent each stock makes up of the portfolio"
+              "Step 6: I will then confirm that I am not negative in cash")
+    return
+
+
+@app.cell
+def _():
     return
 
 
