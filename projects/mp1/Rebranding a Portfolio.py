@@ -100,8 +100,18 @@ def _(mo):
 
 @app.cell
 def _():
-    # Your inputs.
-    return
+    holdings = [
+        ("AAPL", 100, 173.93),
+        ("MSFT", 50, 319.53),
+        ("GOOG", 80, 131.36),
+        ("AMZN", 200, 129.33),
+        ("NVDA", 20, 410.17),
+        ("TSLA", 150, 255.70),
+    ]
+    cash = 5000.00
+    target_weights = {"AAPL": 0.20, "MSFT": 0.20, "GOOG": 0.15,
+                      "AMZN": 0.15, "NVDA": 0.15, "TSLA": 0.15}
+    return cash, holdings, target_weights
 
 
 @app.cell(hide_code=True)
@@ -115,7 +125,54 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(cash, holdings):
+    total_value = cash
+    for h in holdings:
+        ticker = h[0]
+        shares = h[1]
+        price = h[2]
+        value = shares * price
+        total_value = total_value + value
+
+    print(f"Total portfolio value: ${total_value:.2f}")
+    return (total_value,)
+
+
+@app.cell
+def _(holdings, target_weights, total_value):
+    for _h in holdings:
+        _ticker = _h[0]
+        _weight = target_weights[_ticker]
+        _target = total_value * _weight
+        print(f"{_ticker}: target investment = ${_target:.2f}")
+    return
+
+
+@app.cell
+def _(cash, holdings, target_weights, total_value):
+    running_cash = cash
+    trades = []
+    for _h in holdings:
+        _ticker = _h[0]
+        _shares = _h[1]
+        _price = _h[2]
+        _weight = target_weights[_ticker]
+        _target_dollars = total_value * _weight
+        _target_shares = int(_target_dollars // _price)
+        _diff_shares = _target_shares - _shares
+        _trade_cost = _diff_shares * _price
+        running_cash = running_cash - _trade_cost
+        _final_value = _target_shares * _price
+        trades.append((_ticker, _shares, _target_shares, _diff_shares, _final_value))
+    return running_cash, trades
+
+
+@app.cell
+def _(running_cash):
+    if running_cash < 0:
+        print("Warning: cash balance is negative")
+    else:
+        print(f"Final cash balance: ${running_cash:.2f}")
     return
 
 
@@ -130,7 +187,33 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(running_cash, total_value, trades):
+    print(f"{'Ticker':<8}{'Have':>8}{'Want':>8}{'Trade':>8}{'Value':>12}{'Weight':>10}")
+    for _t in trades:
+        _ticker = _t[0]
+        _have = _t[1]
+        _want = _t[2]
+        _diff = _t[3]
+        _final_value = _t[4]
+        _weight_after = _final_value / total_value * 100
+        print(f"{_ticker:<8}{_have:>8}{_want:>8}{_diff:>+8}{_final_value:>12.2f}{_weight_after:>9.2f}%")
+
+    _cash_weight = running_cash / total_value * 100
+    print(f"{'Cash':<8}{'':>8}{'':>8}{'':>8}{running_cash:>12.2f}{_cash_weight:>9.2f}%")
+    print(f"Cash remaining: ${running_cash:.2f}")
+    return
+
+
+@app.cell
+def _(target_weights, total_value, trades):
+    for _t in trades:
+        _ticker = _t[0]
+        _final_value = _t[4]
+        _actual_weight = _final_value / total_value
+        _target_weight = target_weights[_ticker]
+        _diff_points = (_actual_weight - _target_weight) * 100
+        print(f"{_ticker}: target {_target_weight*100:.1f}%, actual {_actual_weight*100:.2f}%, off by {_diff_points:+.2f} points")
+
     return
 
 
@@ -146,6 +229,20 @@ def _(mo):
 
 @app.cell
 def _():
+    print (" I know that these numbers are right becasue the starting total value of the portfolio matches the ending stock and cash value combined")
+    return
+
+
+@app.cell
+def _(running_cash, total_value, trades):
+    check_total = running_cash
+    for _t in trades:
+        check_total = check_total + _t[4]
+
+    difference = check_total - total_value
+    print(f"Starting total value: ${total_value:.2f}")
+    print(f"Ending stock value + cash: ${check_total:.2f}")
+    print(f"Difference: ${difference:.2f}")
     return
 
 
