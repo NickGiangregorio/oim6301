@@ -212,8 +212,7 @@ def _(target_weights, total_value, trades):
         _actual_weight = _final_value / total_value
         _target_weight = target_weights[_ticker]
         _diff_points = (_actual_weight - _target_weight) * 100
-        print(f"{_ticker}: target {_target_weight*100:.1f}%, actual {_actual_weight*100:.2f}%, off by {_diff_points:+.2f} points")
-
+        print(f"{_ticker}: target {_target_weight*100:.1f}%, actual {_actual_weight*100:.2f}%, off by {_diff_points:+.2f} percent")
     return
 
 
@@ -255,6 +254,12 @@ def _(mo):
 
     *If the agent got it right the first time: what did you do to verify that?*
     """)
+    return
+
+
+@app.cell
+def _():
+    print(" during step 3 my agent rounded total shares to the neareast whole number which completely threw off my left over cash. This is because the tool was either spenidng a little more money or a little less money then I wanted it to. I corrected this mistake by removing round and putting INT and adding //. ")
     return
 
 
