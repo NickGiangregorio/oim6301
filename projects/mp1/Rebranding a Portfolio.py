@@ -218,7 +218,7 @@ def _(target_weights, total_value, trades):
 
 @app.cell
 def _():
-    print (" Selling 79 Tesla and 60 Amazon shares and buying 39 Apple, 25 Microsoft, \n58 Google and 24 Nvidia puts every stock within 0.24 percentage points of its target ")
+    print (" Selling 79 Tesla and 60 Amazon shares and buying 39 Apple, 25 Microsoft, \n58 Google and 24 Nvidia puts every stock within 0.24 percentage points of its target percentage  ")
     return
 
 
@@ -281,7 +281,7 @@ def _(mo):
 
 @app.cell
 def _():
-    print (" I went further by replacing the prices that I was given with the live prices from yahoo finance. \n my agent then added a $5 fee per trade, skipped trades under $500, which cost $30 and left $1,208.01 in cash, with the largest gap \nfrom target at 0.16 percentage points. My agent also tried rebalancing only holdings more than 5 points off target which left $12,111.47  \nremaning and Apple 3.79 points under its target. Third,  my agent added sliders for the targets, which refuses any set that does not add up to 100%. ")
+    print (" I went further by replacing the prices that I was given with the live prices from yahoo finance. \n my agent then added a $5 fee per trade, skipped trades under $500, which cost $30 and left $1,208.01 in cash, with the largest gap \nfrom the target at 0.16 percentage points. My agent also tried rebalancing only holdings more than 5 points off target which left $12,111.47  \nremaning and Apple 3.79 points under its target. Third,  my agent added sliders for the targets, which refuses any set that does not add up to 100%. ")
     return
 
 
