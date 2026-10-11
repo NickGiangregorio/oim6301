@@ -234,7 +234,7 @@ def _(mo):
 
 @app.cell
 def _():
-    print (" I know that these numbers are right becasue the starting total value of the portfolio matches the ending stock and cash value combined")
+    print (" I know that these numbers are right because the starting total value of the portfolio matches the ending stock and cash value combined")
     return
 
 
@@ -265,7 +265,7 @@ def _(mo):
 
 @app.cell
 def _():
-    print(" during step 3 in cell 3 step 4 my agent rounded total shares to the neareast whole number which completely threw off my left over cash.\n This is because the tool was either spenidng a little more money or a little less money then I wanted it to.\n I corrected this mistake by removing round and putting INT and adding //. ")
+    print(" during step 3 in cell 3 of part 4 my agent rounded total shares to the neareast whole number which completely threw off my left over cash.\n This is because the tool was either spending  more or less money then I wanted it to.\n I corrected this mistake by removing round and putting INT and adding //. ")
     return
 
 
@@ -281,7 +281,7 @@ def _(mo):
 
 @app.cell
 def _():
-    print (" I went further by replacing the prices that I was given with the live prices from yahoo finance. \n my agent then added a $5 fee per trade, skipped trades under $500, which cost $30 and left $1,208.01 in cash, with the largest gap \nfrom the target at 0.16 percentage points. My agent also tried rebalancing only holdings more than 5 points off target which left $12,111.47  \nremaning and Apple 3.79 points under its target. Third,  my agent added sliders for the targets, which refuses any set that does not add up to 100%. ")
+    print (" I went further by replacing the prices that I was given with the live prices from yahoo finance. \n my agent then added a $5 fee per trade and skipped trades under $500. Which cost $30 and left $1,208.01 in cash, the largest gap \nfrom the target was 0.16 percentage points. My agent also tried rebalancing only holdings more than 5 points off the target which left $12,111.47  \n and Apple 3.79 points under its target. Third,  my agent added sliders for the targets, which refuses any set that does not add up to 100%. ")
     return
 
 
