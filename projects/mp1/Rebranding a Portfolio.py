@@ -44,7 +44,7 @@ def _(mo):
 
 @app.cell
 def _():
-    print ("A finacial advisor or investor would use this tool when one of their client's portfolios is no longer balanced. For example, if Apple stock was intially 20 percent of the portfolio but the price sky rockets it is now more then 20%. This would require a rebalancing which would entail selling Apple shares until it is back closer to 20 percent of the portfolio")
+    print ("A finacial advisor or investor would use this tool when one of their client's portfolios is no longer balanced.\n For example, if Apple stock was intially 20 percent of the portfolio but the price sky rockets it is now more then 20%. \nThis would require a rebalancing which would entail selling Apple shares until it is back closer to 20 percent of the portfolio.")
     return
 
 
@@ -65,24 +65,24 @@ def _(mo):
 
 @app.cell
 def _():
-    print ("Step 1: Add all of the stock together along with the 5,000 cash to get the portfolio value" 
-              "Step 2: I will calculate how much should be invested into each stock based on its targeted percentage" 
-              "Step 3: I will divide that percentage by each stocks price to see how many shares I should buy per stock" 
-              "Step 4: I will then see the difference in shares that I have versus what I should"
-              "Step 5: I will update the cash after each trade then calculate what percent each stock makes up of the portfolio"
+    print ("Step 1: Add all of the stock together along with the 5,000 cash to get the portfolio value\n" 
+              "Step 2: I will calculate how much should be invested into each stock based on its targeted percentage\n" 
+              "Step 3: I will divide the targeted price by each stocks actual price to see how many shares I should buy per stock\n" 
+              "Step 4: I will then see the difference in shares that I have versus what I should\n"
+              "Step 5: I will update the cash after each trade then calculate what percent each stock makes up of the portfolio\n"
               "Step 6: I will then confirm that I am not negative in cash")
     return
 
 
 @app.cell
 def _():
-    print (" My loop is going to carry the cash from one stock to the next, which will be updated after every trade. Buying shares will lower my cash balance and selling shares will raise my cash balance. After the last trade, the running balance will be the leftover cash ")
+    print (" My loop is going to carry the cash from one stock to the next, which will be updated after every trade\n. Buying shares will lower my cash balance and selling shares will raise my cash balance. After the last trade, \nthe running balance will be the leftover cash ")
     return
 
 
 @app.cell
 def _():
-    print (" I will check the portfolios total value before I rebalance it. After rebalancing it I will check the values of the stock and the remaining cash, which should equal the starting value for the portfolio.")
+    print (" I will check the portfolios total value before I rebalance it. After rebalancing it I will check the values of the stock\n and the remaining cash, which should equal the starting value for the portfolio.")
     return
 
 
@@ -216,6 +216,12 @@ def _(target_weights, total_value, trades):
     return
 
 
+@app.cell
+def _():
+    print (" Selling 79 Tesla and 60 Amazon shares and buying 39 Apple, 25 Microsoft, \n58 Google and 24 Nvidia puts every stock within 0.24 percentage points of its target ")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -259,7 +265,7 @@ def _(mo):
 
 @app.cell
 def _():
-    print(" during step 3 my agent rounded total shares to the neareast whole number which completely threw off my left over cash. This is because the tool was either spenidng a little more money or a little less money then I wanted it to. I corrected this mistake by removing round and putting INT and adding //. ")
+    print(" during step 3 in cell 3 step 4 my agent rounded total shares to the neareast whole number which completely threw off my left over cash.\n This is because the tool was either spenidng a little more money or a little less money then I wanted it to.\n I corrected this mistake by removing round and putting INT and adding //. ")
     return
 
 
@@ -270,6 +276,115 @@ def _(mo):
 
     *Take at least one step past the main task, in any direction, and use your agent as much as you like. It does not have to work. State what you tried, what you found, and where it is in this notebook.*
     """)
+    return
+
+
+@app.cell
+def _():
+    print (" I went further by replacing the prices that I was given with the live prices from yahoo finance. \n my agent then added a $5 fee per trade, skipped trades under $500, which cost $30 and left $1,208.01 in cash, with the largest gap \nfrom target at 0.16 percentage points. My agent also tried rebalancing only holdings more than 5 points off target which left $12,111.47  \nremaning and Apple 3.79 points under its target. Third,  my agent added sliders for the targets, which refuses any set that does not add up to 100%. ")
+    return
+
+
+@app.cell
+def _(holdings):
+    import yfinance as yf
+
+    tickers = [h[0] for h in holdings]
+    live_prices = {}
+    for _t in tickers:
+        try:
+            _hist = yf.Ticker(_t).history(period="5d")
+            live_prices[_t] = round(float(_hist["Close"].iloc[-1]), 2)
+        except Exception:
+            live_prices[_t] = next(h[2] for h in holdings if h[0] == _t)   # fall back to listed price
+            print(f"Could not fetch {_t}, using listed price")
+
+    live_holdings = [(_t, _n, live_prices[_t]) for _t, _n, _ in holdings]
+    for _h in live_holdings:
+        print(f"{_h[0]}: ${_h[2]:.2f}")
+    return live_holdings, tickers
+
+
+@app.cell
+def _():
+    def rebalance(positions, start_cash, weights, fee=0.0, min_trade=0.0, drift_limit=None):
+        value_now = start_cash + sum(n * p for _, n, p in positions)
+        cash_left = start_cash
+        rows = []
+        for ticker, have, price in positions:
+            drift = (have * price / value_now - weights[ticker]) * 100        # points off target now
+            want = int(value_now * weights[ticker] // price)                  # round down
+            diff = want - have
+            skip = (diff == 0
+                    or abs(diff) * price < min_trade                          # trade too small
+                    or (drift_limit is not None and abs(drift) <= drift_limit))  # not drifted enough
+            if skip:
+                want, diff = have, 0
+            else:
+                cash_left -= diff * price + fee                               # trade cost plus fee
+            rows.append((ticker, have, want, diff, drift, price))
+        value_after = sum(r[2] * r[5] for r in rows) + cash_left              # fees reduce this
+        return rows, cash_left, value_after
+
+    def show(rows, cash_left, value_after, weights):
+        print(f"{'Ticker':<8}{'Have':>6}{'Want':>6}{'Trade':>7}{'Weight':>9}{'Target':>8}{'Gap':>9}")
+        for ticker, have, want, diff, drift, price in rows:
+            w = want * price / value_after * 100
+            gap = w - weights[ticker] * 100
+            print(f"{ticker:<8}{have:>6}{want:>6}{diff:>+7}{w:>8.2f}%{weights[ticker]*100:>7.1f}%{gap:>+8.2f}")
+        print(f"Cash left: ${cash_left:.2f}   Portfolio after: ${value_after:.2f}")
+        if cash_left < 0:
+            print("WARNING: cash is negative")
+
+    return rebalance, show
+
+
+@app.cell
+def _(cash, live_holdings, rebalance, show, target_weights):
+    _rows, _cash_left, _after = rebalance(live_holdings, cash, target_weights, fee=5, min_trade=500)
+    show(_rows, _cash_left, _after, target_weights)
+    _worst = max(abs(r[2] * r[5] / _after * 100 - target_weights[r[0]] * 100) for r in _rows)
+    print(f"Largest gap from target: {_worst:.2f} percentage points")
+    return
+
+
+@app.cell
+def _(cash, live_holdings, rebalance, show, target_weights):
+    _rows, _cash_left, _after = rebalance(live_holdings, cash, target_weights, drift_limit=5)
+    show(_rows, _cash_left, _after, target_weights)
+    return
+
+
+@app.cell
+def _(mo, target_weights, tickers):
+
+
+    sliders = mo.ui.array(
+        [mo.ui.slider(0, 100, step=1, value=int(target_weights[_t] * 100), label=_t)
+         for _t in tickers]
+    )
+    sliders
+    return (sliders,)
+
+
+@app.cell
+def _(mo, sliders, tickers):
+    _pcts = sliders.value
+    _total = sum(_pcts)
+    mo.stop(
+        _total != 100,
+        mo.callout(mo.md(f"**Refused:** the targets add up to {_total}%, not 100%. Adjust the sliders."),
+                   kind="danger"),
+    )
+    slider_weights = {_t: _p / 100 for _t, _p in zip(tickers, _pcts)}
+    mo.callout(mo.md("Targets add up to 100%."), kind="success")
+    return (slider_weights,)
+
+
+@app.cell
+def _(cash, live_holdings, rebalance, show, slider_weights):
+    _rows, _cash_left, _after = rebalance(live_holdings, cash, slider_weights)
+    show(_rows, _cash_left, _after, slider_weights)
     return
 
 
