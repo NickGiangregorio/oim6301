@@ -642,7 +642,7 @@ def _(mo):
        ```python
        board_reply = requests.post(
            "https://oim.zhili.dev/message",
-           headers={"x-token": "<your-github-username>"},
+           headers={"x-token": "<NickGiangregorio>"},
            json={"message": f"{town_name}: ${town_bill:,}"},
            timeout=10,
        )
@@ -655,6 +655,19 @@ def _(mo):
 
     **Going further.** Post something more useful than one town's bill: choose a question somebody would ask, answer it from live data, and post the answer, in 140 characters or fewer.
     """)
+    return
+
+
+@app.cell
+def _(requests):
+    board_reply = requests.post(
+        "https://oim.zhili.dev/message",
+        headers={"x-token": "NickGiangregorio"},
+        json={"message": f"hi"},
+        timeout=10,
+    )
+    board_reply.status_code, board_reply.json()
+
     return
 
 
