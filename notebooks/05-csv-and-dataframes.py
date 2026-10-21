@@ -12,7 +12,7 @@
 
 import marimo
 
-__generated_with = "0.25.1"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium", sql_output="polars")
 
 
@@ -199,6 +199,54 @@ def _(mo):
     return
 
 
+@app.cell
+def _(towns_from_file):
+    #1
+    county_counts = {}
+
+    for town in towns_from_file:
+        if int(town["average_single_family_value_dollars"]) > 1000000:
+            county = town["county"]
+            if county in county_counts:
+                county_counts[county] += 1
+            else:
+                county_counts[county] = 1
+
+    million_count = 0
+    for county in county_counts:
+        million_count += county_counts[county]
+
+    top_county = ""
+    top_count = 0
+    for county in county_counts:
+        if county_counts[county] > top_count:
+            top_count = county_counts[county]
+            top_county = county
+
+    print("Million-dollar towns:", million_count)
+    print("County with the most:", top_county, "with", county_counts[top_county])
+    print(county_counts)
+    return
+
+
+@app.cell
+def _(towns_from_file):
+    smallest = None
+    largest = None
+
+    for _town in towns_from_file:
+        pop = int(_town["population"])
+
+        if smallest is None or pop < smallest["population"]:
+            smallest = {"town": _town["name"], "population": pop}
+        if largest is None or pop > largest["population"]:
+            largest = {"town": _town["name"], "population": pop}
+
+    print("Fewest people:", smallest["town"], smallest["population"])
+    print("Most people:", largest["town"], largest["population"])
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -342,7 +390,7 @@ def _(mo, town_table):
         ORDER BY towns DESC
         """
     )
-    return (towns_over_threshold,)
+    return
 
 
 @app.cell(hide_code=True)
