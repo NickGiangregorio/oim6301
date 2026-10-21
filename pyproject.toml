@@ -10,3 +10,8 @@ dependencies = [
     "requests>=2.34.2",
     "yfinance>=1.7.0",
 ]
+
+[tool.uv]
+# Windows blocks the compiled sqlglotc extension (an "Application Control
+# policy" error), so force the plain, pure-Python sqlglot build instead.
+override-dependencies = ["sqlglot==30.18.0"]
