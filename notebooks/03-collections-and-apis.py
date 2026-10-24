@@ -163,7 +163,7 @@ def _(mo):
 
     **D ·** I would much rather read it like a tuple where they are ordered by postion and not read by name.
 
-    **G ·** Babson college is actually in flordia so selecting [0] would of had us looking at flordia
+    **G ·** Babson park is actually in flordia so selecting [0] would of had us looking at flordia
     """)
     return
 
