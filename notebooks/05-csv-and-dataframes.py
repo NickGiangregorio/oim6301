@@ -247,6 +247,24 @@ def _(towns_from_file):
     return
 
 
+@app.cell
+def _(towns_from_file):
+    priciest = {}
+
+    for _town in towns_from_file:
+        _county = _town['county']
+        _value = int(_town['average_single_family_value_dollars'])
+        if _county not in priciest:
+            priciest[_county] = _town
+        elif _value > int(priciest[_county]['average_single_family_value_dollars']):
+            priciest[_county] = _town
+
+    for _county in priciest:
+        _best = priciest[_county]
+        print(_county, _best['name'], int(_best['average_single_family_value_dollars']))
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -367,6 +385,47 @@ def _(mo):
     return
 
 
+@app.cell
+def _(ma_counties, pl, town_table):
+    # Compare the two counts, side by side
+    town_counts = town_table.group_by("county").agg(pl.len().alias("towns")).sort("county")
+    server_counts = pl.DataFrame(ma_counties).select("name", "towns").sort("name")
+    town_counts, server_counts
+    return
+
+
+@app.cell
+def _(pl, town_table):
+    # Towns with more than 50,000 people, highest average bill first
+    large_towns_by_bill = (
+        town_table.filter(pl.col("population") > 50_000)
+        .sort("average_single_family_bill_dollars", descending=True)
+        .head(5)
+    )
+    large_towns_by_bill
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    **Going further, B.** My own question: among towns with more than 10,000 people, which county has the highest average income per capita?
+    """)
+    return
+
+
+@app.cell
+def _(pl, town_table):
+    income_by_county = (
+        town_table.filter(pl.col("population") > 10_000)
+        .group_by("county")
+        .agg(pl.col("income_per_capita_dollars").mean().alias("avg_income_per_capita"))
+        .sort("avg_income_per_capita", descending=True)
+    )
+    income_by_county
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -410,6 +469,62 @@ def _(mo):
 
     **Going further.** Write a SQL query of your own on `town_table`, and check its answer in polars.
     """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    **Prediction.** Raising the bar from \$1,000,000 to \$2,000,000 only removes towns, it can never add one: a town that did not average \$1,000,000 cannot average \$2,000,000 either. So every county's count can only go down or stay the same, and none can go up. The counties with the cheapest million-dollar towns, such as Barnstable, Essex and Plymouth, likely lose the most, while counties with the priciest homes, such as Dukes, Middlesex, Norfolk and Nantucket, likely keep some.
+    """)
+    return
+
+
+@app.cell
+def _(mo, town_table):
+    two_million_towns = mo.sql(
+        f"""
+        SELECT county, COUNT(*) AS towns
+        FROM town_table
+        WHERE average_single_family_value_dollars >= 2000000
+        GROUP BY county
+        ORDER BY towns DESC
+        """
+    )
+    return
+
+
+@app.cell
+def _(pl, town_table):
+    two_million_towns_polars = (
+        town_table.filter(pl.col("average_single_family_value_dollars") >= 2_000_000)
+        .group_by("county")
+        .agg(pl.len().alias("towns"))
+        .sort("towns", descending=True)
+    )
+    two_million_towns_polars
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    **Going further, C.** My own SQL query: among towns with more than 20,000 people, what is the average single-family tax bill in each county?
+    """)
+    return
+
+
+@app.cell
+def _(mo, town_table):
+    avg_bill_over_20k = mo.sql(
+        f"""
+        SELECT county, AVG(average_single_family_bill_dollars) AS avg_bill
+        FROM town_table
+        WHERE population > 20000
+        GROUP BY county
+        ORDER BY avg_bill DESC
+        """
+    )
     return
 
 
@@ -463,6 +578,31 @@ def _(mo):
 
     **Going further.** Color the bars or dots by a column with `color=`, and explain what the colors add.
     """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    **My question.** Does a town's average income per person relate to its average single-family home value? Each dot is a town.
+    """)
+    return
+
+
+@app.cell
+def _(alt, mo, town_table):
+    income_vs_value_chart = mo.ui.altair_chart(
+        alt.Chart(town_table)
+        .mark_circle(opacity=0.7)
+        .encode(
+            x=alt.X("income_per_capita_dollars", title="Average income per person (dollars)"),
+            y=alt.Y("average_single_family_value_dollars", title="Average single-family home value (dollars)"),
+            color=alt.Color("county", title="County"),
+            tooltip=["name", "county", "income_per_capita_dollars", "average_single_family_value_dollars"],
+        )
+        .properties(title="Towns with higher income per person tend to have pricier homes")
+    )
+    income_vs_value_chart
     return
 
 
