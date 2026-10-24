@@ -12,15 +12,8 @@ def _():
     return (mo,)
 
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    # Outdoor Event Day Picker
-
-    Type a Massachusetts town below. We will look at the next seven days
-    (today included), check each day against the club's rules, and say which
-    day is best.
-    """)
+@app.cell
+def _():
     return
 
 
@@ -31,6 +24,8 @@ def _(mo):
 
     *(Write 2–3 sentences, in words someone outside this course would understand:
     who would use this, and what decision does it help them make?)*
+
+    This tool is going to be very usefull to plan events because you will be able to see the predicted weather for the upcoming week. This will help with picking the day to host the event. In this scenario a club is planning an event and wants to see which day will have the nicest weather.
     """)
     return
 
@@ -42,6 +37,17 @@ def _(mo):
 
     *(Open the API's address in your browser and read what comes back.
     Then write, in five lines or more, the steps you would take, in plain words.
+
+    Step 1: I will set the coordinates to the town of choice, for the example I will use Belmont,Ma as its where I am from. I will also set the variables to tell me the temp , rain and wind speed for each day.
+
+    Step 2: I will then search for Belmont using the search feature and I will load the chart that reads me all the weather variables for the upcoming week.
+
+    Step 3: I will then read the data from the table with my agent keeping the rules in mind to find the day with the best temprature.
+
+    step 4: I will then reccomend the best day in Belmont to the club so they can have their event.
+
+    step 5: I will then compare near by towns to find the best locoation within a close distance for them to hold their event.
+
     Then answer:*
 
     - *Which functions will your tool need? For each, what goes in and what comes out?*
