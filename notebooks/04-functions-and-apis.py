@@ -216,6 +216,21 @@ def _(holdings, retirement_holdings):
     return
 
 
+@app.cell
+def _(holdings, retirement_holdings):
+    def find_largest_n(portfolio, n):
+        costs = []
+        for stock in portfolio:
+            stock_cost = stock[1] * stock[2]
+            costs.append((stock[0], stock_cost))
+
+        sorted_costs = sorted(costs, key=lambda pair: pair[1], reverse=True)
+        return sorted_costs[:n]
+
+    find_largest_n(holdings, 3), find_largest_n(retirement_holdings, 2)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -455,6 +470,24 @@ def _(mo):
     return
 
 
+@app.cell
+def _(requests):
+    norfolk_top_income = requests.get(
+        "https://oim.zhili.dev/ma/towns",
+        params={
+            "county": "Norfolk",
+            "sort": "income",
+            "order": "desc",
+            "per_page": 5,
+        },
+        timeout=10,
+    ).json()
+
+    for town in norfolk_top_income["items"]:
+        print(town["name"])
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -473,12 +506,33 @@ def _(mo):
 
 @app.cell
 def _(requests):
+    wellesley_record = requests.get(
+        "https://oim.zhili.dev/ma/towns",
+        params={"name": "Wellesley"},
+        timeout=10,
+    ).json()["items"][0]
+
+    wellesley_dor_code = wellesley_record["dor_code"]
+    wellesley_dor_code
+    return
+
+
+@app.cell
+def _(requests):
     wellesley_history = requests.get(
         "https://oim.zhili.dev/ma/towns/317/history",
         params={"fiscal_year": 2026},
         timeout=10,
     ).json()
     wellesley_history
+    return (wellesley_history,)
+
+
+@app.cell
+def _(wellesley_history):
+    wellesley_year = wellesley_history["years"][-1]
+    wellesley_check = wellesley_year["average_single_family_value_dollars"] * wellesley_year["residential_rate_per_thousand"] / 1000
+    wellesley_check
     return
 
 
@@ -501,6 +555,12 @@ def _(requests):
         return history_reply.json()
 
     town_history("Needham")
+    return (town_history,)
+
+
+@app.cell
+def _(town_history):
+    town_history("Wellesley")
     return
 
 
@@ -601,11 +661,20 @@ def _(get_page):
 
     all_towns = get_all_towns()
     len(all_towns), all_towns[0], all_towns[-1]
-    return
+    return (all_towns,)
 
 
 @app.cell
-def _():
+def _(all_towns):
+    highest_town = all_towns[0]
+    lowest_town = all_towns[0]
+    for one_town in all_towns:
+        if one_town["average_single_family_bill_dollars"] > highest_town["average_single_family_bill_dollars"]:
+            highest_town = one_town
+        if one_town["average_single_family_bill_dollars"] < lowest_town["average_single_family_bill_dollars"]:
+            lowest_town = one_town
+
+    (highest_town["name"], highest_town["average_single_family_bill_dollars"]), (lowest_town["name"], lowest_town["average_single_family_bill_dollars"])
     return
 
 
@@ -667,7 +736,6 @@ def _(requests):
         timeout=10,
     )
     board_reply.status_code, board_reply.json()
-
     return
 
 
