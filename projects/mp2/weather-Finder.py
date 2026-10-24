@@ -50,10 +50,10 @@ def _(mo):
 
     Then answer:*
 
-    - *Which functions will your tool need? For each, what goes in and what comes out?*
-    - *Which addresses will they request?*
-    - *How will you know you have every record?*
-    - *Which check will you use in section 6, and which two numbers should agree?*
+    - *Which functions will your tool need? For each, what goes in and what comes out?*  One function I will need is find_place. what goes in is the town name I am using and what comes out is a dictionary with the town name, latititude and longtitude. Another function I will need is get_forecast. What goes into this function is two coordinates and what comes out is the town that I have searched and the daily wether with the variables I have searched for. The last function I will need is show_table. what goes in is the list of the weeks forecast and what comes out is a table with the results.
+    - *Which addresses will they request?* The adress they will request is https://geocoding-api.open-meteo.com/v1/search?name=belmont&count=100&language=en&format=json
+    - *How will you know you have every record?*  I will know I have every recored when it shows the forecast and weather variables for 7 days.
+    - *Which check will you use in section 6, and which two numbers should agree?* The number rows in section 7 should match the amount of days I am getting information for wich will be 7. The number of days that are marked pass should be the same as the days that have broken 0 rules.
 
     *Commit with the message `mp2: plan before AI` after writing this.)*
     """)
