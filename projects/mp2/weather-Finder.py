@@ -197,7 +197,7 @@ def _(table, town):
         reason = f"no day passes every rule, but this one breaks the fewest rules ({best['broken_rules']})"
 
     f"The best day for the event in {town['name']} is {best['date']}, because {reason}."
-    return
+    return (best,)
 
 
 @app.cell(hide_code=True)
@@ -303,11 +303,6 @@ def _(mo):
     I compared towns: I ran the same forecast and rule check for Lexington,
     Massachusetts, next to Belmont, using the same `find_place` and
     `get_forecast` functions (two cells below this one).
-
-    lexington picked **2026-10-25** as the best day, with 0% chance of rain
-    while Belmont chose **2026-10-28**, since they are close together and share similar weather i am not sure how the towns have different highs in temp. Belmont
-    had 7 of 7 days pass every rule; Lexington had 5 of 7, failing on
-    2026-10-27 and 2026-10-28 because the high was below 55°F on those days. I belive the best day between the two towns would be 10-28 in belmont.
     """)
     return
 
@@ -375,6 +370,14 @@ def _(second_table, second_town):
         second_reason = f"no day passes every rule, but this one breaks the fewest rules ({second_best['broken_rules']})"
 
     f"The best day for the event in {second_town['name']} is {second_best['date']}, because {second_reason}."
+    return (second_best,)
+
+
+@app.cell
+def _(best, second_best, second_town, town):
+    candidates = [(town["name"], best), (second_town["name"], second_best)]
+    winner = min(candidates, key=lambda c: (c[1]["broken_rules"], c[1]["rain_chance"], c[1]["wind"]))
+    f"Best place and day: {winner[0]} on {winner[1]['date']} ({winner[1]['rain_chance']}% rain, {winner[1]['wind']} mph wind)."
     return
 
 
