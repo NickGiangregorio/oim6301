@@ -48,7 +48,7 @@ def _(mo):
     - *Which functions will your tool need? For each, what goes in and what comes out?*  One function I will need is find_place. what goes in is the town name I am using and what comes out is a dictionary with the town name, latititude and longtitude. Another function I will need is get_forecast. What goes into this function is two coordinates and what comes out is the town that I have searched and the daily wether with the variables I have searched for. The last function I will need is show_table. what goes in is the list of the weeks forecast and what comes out is a table with the results.
     - *Which addresses will they request?* The adress they will request is https://geocoding-api.open-meteo.com/v1/search?name=belmont&count=100&language=en&format=json
     - *How will you know you have every record?*  I will know I have every recored when it shows the forecast and weather variables for 7 days.
-    - *Which check will you use in section 6, and which two numbers should agree?* The number rows in section 7 should match the amount of days I am getting information for wich will be 7. The number of days that are marked pass should be the same as the days that have broken 0 rules.
+    - *Which check will you use in section 6, and which two numbers should agree?* The number rows in section 6 should match the amount of days I am getting information for wich will be 7. The number of days that are marked pass should be the same as the days that have broken 0 rules.
 
     *Commit with the message `mp2: plan before AI` after writing this.)*
     """)
@@ -67,7 +67,7 @@ def _(mo):
 
 @app.cell
 def _():
-    place = "Belmont"
+    place = "belmont"
     state = "Massachusetts"
     lowest_high_f = 55
     highest_high_f = 80
@@ -148,12 +148,6 @@ def _(mo):
 
 
 @app.cell
-def _():
-    # duplicate removed; see the cell above for the best-day calculation
-    return
-
-
-@app.cell
 def _(forecast, highest_high_f, lowest_high_f, max_rain_chance, max_wind_mph):
     table = []
     for day in forecast:
@@ -203,7 +197,7 @@ def _(table, town):
         reason = f"no day passes every rule, but this one breaks the fewest rules ({best['broken_rules']})"
 
     f"The best day for the event in {town['name']} is {best['date']}, because {reason}."
-    return (passing_days,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -217,15 +211,54 @@ def _(mo):
 
 
 @app.cell
-def _(passing_days, table):
-    rows_found = len(table)
+def _(
+    highest_high_f,
+    lowest_high_f,
+    max_rain_chance,
+    max_wind_mph,
+    requests,
+    table,
+    town,
+):
+    raw = requests.get("https://api.open-meteo.com/v1/forecast", params={
+        "latitude": town["lat"],
+        "longitude": town["lon"],
+        "daily": "temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
+        "temperature_unit": "fahrenheit",
+        "wind_speed_unit": "mph",
+        "timezone": "America/New_York",
+        "forecast_days": 7,
+    }).json()["daily"]
 
-    zero_broken_rules = 0
+    # Check 1: one row of the table, found again in the raw lists
+    check_i = 3
+    check_row = table[check_i]
+    same_row = (
+        check_row["date"] == raw["time"][check_i]
+        and check_row["high"] == raw["temperature_2m_max"][check_i]
+        and check_row["low"] == raw["temperature_2m_min"][check_i]
+        and check_row["rain_chance"] == raw["precipitation_probability_max"][check_i]
+        and check_row["wind"] == raw["wind_speed_10m_max"][check_i]
+    )
+
+    # Check 2: pass count recomputed from the raw lists, not from table["passes"]
+    raw_pass_count = 0
+    for _h, _r, _w in zip(raw["temperature_2m_max"],
+                          raw["precipitation_probability_max"],
+                          raw["wind_speed_10m_max"]):
+        if lowest_high_f <= _h <= highest_high_f and _r <= max_rain_chance and _w <= max_wind_mph:
+            raw_pass_count = raw_pass_count + 1
+
+    table_pass_count = 0
     for _row in table:
-        if _row["broken_rules"] == 0:
-            zero_broken_rules = zero_broken_rules + 1
+        if _row["passes"]:
+            table_pass_count = table_pass_count + 1
 
-    f"Rows in table: {rows_found} (should be 7). Days marked passes: {len(passing_days)}, days with 0 broken rules: {zero_broken_rules} (should match)."
+    # Check 3 and the printed result: both numbers are shown for each check
+    f"""Row {check_i} ({check_row['date']}): table {check_row['high']}/{check_row['low']}°F, {check_row['rain_chance']}%, {check_row['wind']} mph
+    vs raw {raw['temperature_2m_max'][check_i]}/{raw['temperature_2m_min'][check_i]}°F, {raw['precipitation_probability_max'][check_i]}%, {raw['wind_speed_10m_max'][check_i]} mph -> {'AGREE' if same_row else 'DISAGREE'}
+    Passing days: table says {table_pass_count}, raw recount says {raw_pass_count} -> {'AGREE' if table_pass_count == raw_pass_count else 'DISAGREE'}
+    Rows in table: {len(table)}, dates in raw reply: {len(raw['time'])} -> {'AGREE' if len(table) == len(raw['time']) else 'DISAGREE'}"""
     return
 
 
@@ -239,7 +272,7 @@ def _(mo):
     the cell. If the agent got it right the first time: what did you do to
     verify that? Pointing to your check in section 7 is enough.)*
 
-    My agent was correct the first time. I can confirm this by my check in section 6. I verified by making sure the amount of rows should match the amount of days that it is predicting which is 7. The days marked pass should also match the days that break zero rules which was true.
+    My agent did not do section 6 correct. it used numbers from the same loop to check if it was correct. The numbers would agree even if the loop was coded wrong. I fixed it so now it is checking the raw data and comparing it to my table so now I know that the numbers are correct.
     """)
     return
 
@@ -257,7 +290,7 @@ def _(mo):
     Commit with the message `mp2: prediction`, make the change, run it, and
     write what happened and whether it matched.)*
 
-    one function that my agent wrote was zip. zip takes multiple lists and puts them together so that a loop can read one value from each list at the same time. another function that my agent helped write was request.get. what goes into this function is a url and a dictionary of specific search settings what comes back is the raw text that the servers sends back. In this case json which returns text into a dictionary. One line I asked about was the 'table' line because i thought you would need a show_table function to show the table. My agent told me that in marimo if the last expression is a list or records it will automatically display a table , so using just table is fine. I am going to change the town name in my input section to watertown. I belive an error will show because the coordinates will be wrong.
+    one function that my agent wrote was zip. zip takes multiple lists and puts them together so that a loop can read one value from each list at the same time. another function that my agent helped write was request.get. what goes into this function is a url and a dictionary of specific search settings what comes back is the raw text that the servers sends back. In this case json which returns text into a dictionary. One line I asked about was the 'table' line because i thought you would need a show_table function to show the table. My agent told me that in marimo if the last expression is a list or records it will automatically display a table , so using just table is fine. I am going to change the town name in my input section to watertown. I belive an error will show because the coordinates will be wrong. My prediction was wrong, what happened was the coordinates changed to watertowns coordinates and the weather changed slightly. Watertown and belmont are so close that the weather is basically the same so there was no big change.
     """)
     return
 
@@ -271,11 +304,10 @@ def _(mo):
     Massachusetts, next to Belmont, using the same `find_place` and
     `get_forecast` functions (two cells below this one).
 
-    Both towns picked **2026-10-24** as the best day, with 0% chance of rain
-    in each, since they are close together and share similar weather. Belmont
-    had 6 of 7 days pass every rule; Lexington had 5 of 7, failing on
-    2026-10-27 and 2026-10-28 because the high was below 55°F on those days,
-    where Belmont only failed once, and for the same reason.
+    lexington picked **2026-10-25** as the best day, with 0% chance of rain
+    while Belmont chose **2026-10-28**, since they are close together and share similar weather i am not sure how the towns have different highs in temp. Belmont
+    had 7 of 7 days pass every rule; Lexington had 5 of 7, failing on
+    2026-10-27 and 2026-10-28 because the high was below 55°F on those days. I belive the best day between the two towns would be 10-28 in belmont.
     """)
     return
 
@@ -352,7 +384,7 @@ def _(mo):
     ## 10. Time Spent
 
     *(About how many hours this project took you outside class, as one number.
-    It is not graded.)* 2 hours
+    It is not graded.)* 3 hours
     """)
     return
 
