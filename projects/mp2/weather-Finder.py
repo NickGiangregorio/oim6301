@@ -238,6 +238,8 @@ def _(mo):
     you, what did you change, and how did you know? Point to the commit or
     the cell. If the agent got it right the first time: what did you do to
     verify that? Pointing to your check in section 7 is enough.)*
+
+    My agent was correct the first time. I can confirm this by my check in section 6. I verified by making sure the amount of rows should match the amount of days that it is predicting which is 7. The days marked pass should also match the days that break zero rules which was true.
     """)
     return
 
@@ -254,6 +256,8 @@ def _(mo):
     Inputs cell is enough. Write what you expect to change in the answer.
     Commit with the message `mp2: prediction`, make the change, run it, and
     write what happened and whether it matched.)*
+
+    one function that my agent wrote was zip. zip takes multiple lists and puts them together so that a loop can read one value from each list at the same time. another function that my agent helped write was request.get. what goes into this function is a url and a dictionary of specific search settings what comes back is the raw text that the servers sends back. In this case json which returns text into a dictionary. One line I asked about was the 'table' line because i thought you would need a show_table function to show the table. My agent told me that in marimo if the last expression is a list or records it will automatically display a table , so using just table is fine. I am going to change the town name in my input section to watertown. I belive an error will show because the coordinates will be wrong.
     """)
     return
 
@@ -348,7 +352,7 @@ def _(mo):
     ## 10. Time Spent
 
     *(About how many hours this project took you outside class, as one number.
-    It is not graded.)*
+    It is not graded.)* 2 hours
     """)
     return
 
