@@ -133,11 +133,6 @@ def _(holdings):
     return
 
 
-@app.cell
-def _():
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -251,12 +246,6 @@ def _(holdings):
 
     kept_result = show_shares(holdings)
     kept_result
-    return
-
-
-@app.cell
-def _():
-    print ("The name only holds a value if a new cell tried to do something with it then it woulndt be able to do anything usefull")
     return
 
 
@@ -736,6 +725,25 @@ def _(requests):
         timeout=10,
     )
     board_reply.status_code, board_reply.json()
+    return
+
+
+@app.cell
+def _(requests):
+    board_reply_no_header = requests.post(
+        "https://oim.zhili.dev/message",
+        json={"message": "hi again"},
+        timeout=10,
+    )
+    board_reply_no_header.status_code, board_reply_no_header.json()
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    The server answered **401**, "Missing x-token header," and refused to post the message. It needs to know who sent a message so it can show the right name on the board, the same way a form on a website needs to know who is logged in before it saves what they typed. Without that header, the server has no way to credit any one person for a line on a public board.
+    """)
     return
 
 
