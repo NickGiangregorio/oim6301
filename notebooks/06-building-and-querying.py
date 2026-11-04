@@ -13,7 +13,7 @@
 
 import marimo
 
-__generated_with = "0.25.1"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium", sql_output="polars")
 
 
@@ -100,7 +100,7 @@ def _(mo, pl, requests):
         town_rows = pl.DataFrame(_records).select(town_columns)
 
     county_rows.shape, town_rows.shape
-    return county_rows, town_rows
+    return
 
 
 @app.cell(hide_code=True)
@@ -130,7 +130,7 @@ def _(mo):
 
 
 @app.cell
-def _(county_rows, duckdb, mo, town_rows):
+def _(duckdb, mo):
     _file = mo.notebook_dir().parent / "data" / "ma-towns.duckdb"
     _file.parent.mkdir(exist_ok=True)
     _file.unlink(missing_ok=True)
@@ -197,6 +197,17 @@ def _(ask):
     return
 
 
+@app.cell
+def _(ask):
+    ask("SELECT * FROM counties")
+    return
+
+
+@app.cell
+def _():
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -215,6 +226,11 @@ def _(mo):
 
     **Going further.** Load every year for one county's towns from the API, and find the town whose bill grew the most over 10 years.
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
@@ -286,6 +302,18 @@ def _(mo):
     *Check yourself: Brookline, Newton, Cambridge, Somerville, Quincy.*
 
     **Going further.** Ask the same question of `counties` and `towns` together: which county is each of those five in, and what share of its county's people does each hold? That needs both tables at once, which the topic slides call a join.
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT name, population, average_single_family_bill_dollars
+        FROM towns
+       where population > 50000
+        ORDER BY average_single_family_bill_dollars DESC
+        LIMIT 5
     """)
     return
 
@@ -395,7 +423,7 @@ def _(ask, mo, requests):
         _path.write_bytes(_reply.content)
     orders_file = _path.as_posix()
     ask(f"SELECT count(*) AS orders FROM '{orders_file}'")
-    return (orders_file,)
+    return
 
 
 @app.cell(hide_code=True)
