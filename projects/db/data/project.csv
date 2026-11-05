@@ -1,0 +1,15 @@
+project_id,name,client_name,category,budget,start_date,status
+1,Hawkeye Insurance Llm App,Hawkeye Insurance,LLM app,122964.49,2026-04-14,active
+2,Internal Tool 2,,internal tool,56830.98,2025-12-18,done
+3,Riverside Health Llm App,Riverside Health,LLM app,303692.85,2026-01-12,active
+4,Summit Realty Data Pipeline,Summit Realty,data pipeline,419432.8,2026-02-24,active
+5,Internal Tool 5,,internal tool,191566.69,2026-04-16,paused
+6,Union Freight Data Pipeline,Union Freight,data pipeline,126599.41,2026-01-08,planned
+7,Acme Retail Data Pipeline,Acme Retail,data pipeline,258186.25,2026-09-05,active
+8,Northfield Bank Llm App,Northfield Bank,LLM app,45315.72,2026-09-27,planned
+9,Hawkeye Insurance Llm App,Hawkeye Insurance,LLM app,241087.13,2025-12-14,paused
+10,Internal Tool 10,,internal tool,112121.83,2026-07-14,active
+11,Internal Tool 11,,internal tool,267771.01,2026-08-27,active
+12,Summit Realty Data Pipeline,Summit Realty,data pipeline,60560.09,2026-02-13,done
+13,Summit Realty Data Pipeline,Summit Realty,data pipeline,220820.61,2026-06-06,planned
+14,Internal Tool 14,,internal tool,443191.04,2026-10-08,planned

@@ -1,0 +1,36 @@
+person_id,effective_date,title,work_email
+1,2024-01-29,Founder,abigail.brown@babsonailabs.com
+2,2025-04-23,Founder,daniel.rodriguez@babsonailabs.com
+3,2024-07-05,Manager,mason.jones@babsonailabs.com
+3,2024-12-07,Director,mason.jones2@babsonailabs.com
+4,2026-10-08,Associate,sophia.davis@babsonailabs.com
+5,2026-04-16,Manager,emily.lee@babsonailabs.com
+6,2024-10-30,Senior Engineer,olivia.harris@babsonailabs.com
+6,2025-08-06,Manager,olivia.harris2@babsonailabs.com
+7,2024-07-05,Manager,ella.hernandez@babsonailabs.com
+7,2025-08-21,Director,ella.hernandez2@babsonailabs.com
+8,2024-03-06,Manager,alexander.rodriguez@babsonailabs.com
+9,2025-07-31,Engineer,charlotte.williams@babsonailabs.com
+10,2025-03-19,Associate,liam.perez@babsonailabs.com
+11,2025-06-30,Senior Engineer,noah.gonzalez@babsonailabs.com
+11,2026-02-26,Manager,noah.gonzalez2@babsonailabs.com
+12,2025-06-07,Associate,sophia.perez@babsonailabs.com
+13,2025-04-23,Manager,ethan.moore@babsonailabs.com
+14,2025-03-02,Senior Engineer,abigail.thompson@babsonailabs.com
+15,2025-03-22,Associate,ella.johnson@babsonailabs.com
+16,2024-04-22,Senior Engineer,charlotte.rodriguez@babsonailabs.com
+16,2025-11-14,Manager,charlotte.rodriguez2@babsonailabs.com
+17,2026-07-05,Senior Engineer,charlotte.lee@babsonailabs.com
+17,2026-10-06,Manager,charlotte.lee2@babsonailabs.com
+18,2026-05-04,Senior Engineer,daniel.jackson@babsonailabs.com
+18,2026-08-07,Manager,daniel.jackson2@babsonailabs.com
+19,2024-06-12,Associate,harper.thomas@babsonailabs.com
+19,2025-01-21,Engineer,harper.thomas2@babsonailabs.com
+20,2024-04-17,Manager,michael.wilson@babsonailabs.com
+21,2025-05-06,Associate,amelia.taylor@babsonailabs.com
+22,2025-06-07,Senior Engineer,noah.perez@babsonailabs.com
+22,2026-03-16,Manager,noah.perez2@babsonailabs.com
+23,2023-12-15,Engineer,ethan.anderson@babsonailabs.com
+24,2025-08-11,Engineer,noah.lee@babsonailabs.com
+24,2026-11-04,Senior Engineer,noah.lee2@babsonailabs.com
+25,2023-12-10,Senior Engineer,ethan.moore@babsonailabs.com
