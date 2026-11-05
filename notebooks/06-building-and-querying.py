@@ -131,6 +131,7 @@ def _(mo):
 
 @app.cell
 def _(duckdb, mo):
+    # Rebuild the database fresh each time this cell runs.
     _file = mo.notebook_dir().parent / "data" / "ma-towns.duckdb"
     _file.parent.mkdir(exist_ok=True)
     _file.unlink(missing_ok=True)
@@ -230,6 +231,57 @@ def _(mo):
 
 
 @app.cell
+def _(database, duckdb):
+    with duckdb.connect(database) as _con:
+        _con.execute("""
+            CREATE TABLE town_bills (
+                town_name VARCHAR NOT NULL,
+                fiscal_year INTEGER NOT NULL,
+                average_single_family_bill_dollars INTEGER,
+                FOREIGN KEY (town_name) REFERENCES towns (name),
+                PRIMARY KEY (town_name, fiscal_year)
+            )
+        """)
+
+        _con.execute("""
+            INSERT INTO town_bills (town_name, fiscal_year, average_single_family_bill_dollars)
+            VALUES
+                ('Wellesley', 2025, 19792),
+                ('Wellesley', 2026, 20551)
+        """)
+
+        print(_con.execute("SELECT * FROM town_bills ORDER BY fiscal_year").fetchall())
+    return
+
+
+@app.cell
+def _(database, duckdb):
+    # Check that town_bills refuses a duplicate key and a bad foreign key.
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("""
+                INSERT INTO town_bills (town_name, fiscal_year, average_single_family_bill_dollars)
+                VALUES ('Wellesley', 2025, 19792)
+            """)
+        duplicate_check = "accepted"
+    except duckdb.ConstraintException as _error:
+        duplicate_check = str(_error).splitlines()[0]
+
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("""
+                INSERT INTO town_bills (town_name, fiscal_year, average_single_family_bill_dollars)
+                VALUES ('Atlantis', 2025, 19792)
+            """)
+        foreign_key_check = "accepted"
+    except duckdb.ConstraintException as _error:
+        foreign_key_check = str(_error).splitlines()[0]
+
+    duplicate_check, foreign_key_check
+    return
+
+
+@app.cell
 def _():
     return
 
@@ -267,6 +319,33 @@ def _(mo):
 
     **Going further.** Find a rule the scenario of your database project states that a constraint cannot hold, and write the query that checks it instead.
     """)
+    return
+
+
+@app.cell
+def _(database, duckdb):
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("INSERT INTO towns VALUES ('Wellesley', 'Norfolk', 100, 0, 0)")
+        duplicate_name_check = "accepted"
+    except duckdb.ConstraintException as _error:
+        duplicate_name_check = str(_error).splitlines()[0]
+
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("INSERT INTO towns VALUES ('Emptyville', 'Norfolk', 0, 0, 0)")
+        zero_population_check = "accepted"
+    except duckdb.ConstraintException as _error:
+        zero_population_check = str(_error).splitlines()[0]
+
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("INSERT INTO towns VALUES ('Nowhere', 'Atlantis', 10, 0, 0)")
+        bad_county_check = "accepted"
+    except duckdb.ConstraintException as _error:
+        bad_county_check = str(_error).splitlines()[0]
+
+    duplicate_name_check, zero_population_check, bad_county_check
     return
 
 
@@ -313,6 +392,21 @@ def _(ask):
         FROM towns
        where population > 50000
         ORDER BY average_single_family_bill_dollars DESC
+        LIMIT 5
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT t.name AS town, t.county, t.population AS town_population,
+               c.population AS county_population,
+               round(100.0 * t.population / c.population, 1) AS pct_of_county
+        FROM towns AS t
+        JOIN counties AS c ON t.county = c.name
+        WHERE t.population > 50000
+        ORDER BY t.average_single_family_bill_dollars DESC
         LIMIT 5
     """)
     return
