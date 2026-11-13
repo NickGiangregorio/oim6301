@@ -247,8 +247,16 @@ def make_tasks(projects, assignments_by_project, people_by_id):
 def make_expenses(projects):
     rows = []
     num_expenses = 300
+
+    # a project that is only "planned" hasn't started real work yet, so it
+    # shouldn't have any spending recorded against it
+    spending_projects = []
+    for project in projects:
+        if project["status"] != "planned":
+            spending_projects.append(project)
+
     for expense_id in range(1, num_expenses + 1):
-        project = random.choice(projects)
+        project = random.choice(spending_projects)
         project_start = date.fromisoformat(project["start_date"])
         expense_date = random_date(project_start, AS_OF)
         rows.append({

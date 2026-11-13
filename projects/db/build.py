@@ -76,6 +76,8 @@ def _(mo):
     ## 2. The Data
 
     `make_data.py` writes the CSV files in `data/`, following the scenario's rules, with one exception on purpose: two `task` rows are assigned to a real person who does not work on that task's project, breaking the rule behind Part B question 7. `make_data.py` prints which two task ids those are when it runs.
+
+    `make_data.py` also includes rows with nothing attached, on purpose: about 15% of tasks have no `assignee_id` yet, and projects still in "planned" status have no `expense` rows at all, because no real work — and no spending — has started on them. The second one started as a bug: the agent's first version of `make_expenses()` gave every project expenses regardless of status, which made Part B's "which projects haven't spent anything yet?" question always come back empty. Fixing it in `make_expenses()` and rebuilding is what gave that question a real answer; Part B's "Working With the Agent" section says more.
     """)
     return
 
