@@ -49,6 +49,21 @@ def random_date(start, end):
     return start + timedelta(days=offset)
 
 
+def random_weekday_date(start, end):
+    # Builds the list of weekdays (Monday-Friday) between start and end, then
+    # picks one at random, so a task's created_date lands on a business day
+    # the way it would at a real company.
+    candidates = []
+    current = start
+    while current <= end:
+        if current.weekday() < 5:
+            candidates.append(current)
+        current = current + timedelta(days=1)
+    if len(candidates) == 0:
+        return random_date(start, end)  # no weekday in range, fall back
+    return random.choice(candidates)
+
+
 def make_people():
     rows = []
     history_rows = []
@@ -131,8 +146,9 @@ def make_assignments(people, projects):
     for person in people:
         people_by_id[person["person_id"]] = person
 
-    # assignments_by_project tracks who is on each project, so tasks can pick
-    # a valid assignee later
+    # assignments_by_project tracks who is on each project, and the date they
+    # joined it, so tasks can pick a valid assignee (and a created_date no
+    # earlier than that person's join date) later
     assignments_by_project = {}
     for project in projects:
         project_id = project["project_id"]
@@ -153,19 +169,22 @@ def make_assignments(people, projects):
                 "hours_per_week": random.randint(1, 40),
                 "joined_date": joined_date.isoformat(),
             })
-            assignments_by_project[project_id].append(person["person_id"])
+            assignments_by_project[project_id].append({
+                "person_id": person["person_id"],
+                "joined_date": joined_date,
+            })
     return rows, assignments_by_project
 
 
-def make_tasks(projects, assignments_by_project):
+def make_tasks(projects, assignments_by_project, people_by_id):
     rows = []
     task_id = 1
-    num_tasks = 260
+    num_tasks = 700
     all_person_ids = []
-    for project_id, person_ids in assignments_by_project.items():
-        for person_id in person_ids:
-            if person_id not in all_person_ids:
-                all_person_ids.append(person_id)
+    for project_id, team in assignments_by_project.items():
+        for member in team:
+            if member["person_id"] not in all_person_ids:
+                all_person_ids.append(member["person_id"])
 
     # pick two task rows in advance to break the rule on purpose: their
     # assignee will be a real person who does not work on that task's project
@@ -177,22 +196,34 @@ def make_tasks(projects, assignments_by_project):
         project_id = project["project_id"]
         project_start = date.fromisoformat(project["start_date"])
         team = assignments_by_project[project_id]
+        team_ids = [member["person_id"] for member in team]
 
-        created_date = random_date(project_start, AS_OF)
-        due_date = created_date + timedelta(days=random.randint(3, 45))
-
+        # Pick the assignee first, then bound created_date by whatever makes
+        # that choice valid: a team member can't have a task before they
+        # joined the project, and someone off the project's team (the
+        # on-purpose broken rows) still can't have a task before they
+        # started at the company.
         if task_id in broken_rule_tasks:
             # assign to someone real, but not on this project's team
-            other_people = [p for p in all_person_ids if p not in team]
+            other_people = [p for p in all_person_ids if p not in team_ids]
             if other_people:
                 assignee_id = random.choice(other_people)
                 broken_rows.append(task_id)
+                person_start = date.fromisoformat(people_by_id[assignee_id]["start_date"])
+                earliest = max(project_start, person_start)
             else:
                 assignee_id = ""
-        elif team and random.random() > 0.15:
-            assignee_id = random.choice(team)
+                earliest = project_start
+        elif team_ids and random.random() > 0.15:
+            member = random.choice(team)
+            assignee_id = member["person_id"]
+            earliest = max(project_start, member["joined_date"])
         else:
             assignee_id = ""  # about 15% of tasks start unassigned
+            earliest = project_start
+
+        created_date = random_weekday_date(earliest, AS_OF)
+        due_date = created_date + timedelta(days=random.randint(3, 45))
 
         if due_date < AS_OF and random.random() < 0.6:
             completed_date = random_date(created_date, min(due_date, AS_OF))
@@ -215,7 +246,7 @@ def make_tasks(projects, assignments_by_project):
 
 def make_expenses(projects):
     rows = []
-    num_expenses = 160
+    num_expenses = 300
     for expense_id in range(1, num_expenses + 1):
         project = random.choice(projects)
         project_start = date.fromisoformat(project["start_date"])
@@ -244,9 +275,10 @@ def write_csv(file_name, rows, field_names):
 
 def main():
     people, history_rows = make_people()
+    people_by_id = {person["person_id"]: person for person in people}
     projects = make_projects()
     assignment_rows, assignments_by_project = make_assignments(people, projects)
-    task_rows = make_tasks(projects, assignments_by_project)
+    task_rows = make_tasks(projects, assignments_by_project, people_by_id)
     expense_rows = make_expenses(projects)
 
     write_csv("person.csv", people, ["person_id", "first_name", "last_name", "start_date", "manager_id"])

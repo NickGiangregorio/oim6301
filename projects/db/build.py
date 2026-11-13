@@ -5,6 +5,7 @@
 #     "duckdb",
 #     "polars",
 #     "pyarrow",
+#     "altair",
 # ]
 # ///
 """Builds the BabsonAI Labs database.
@@ -28,6 +29,14 @@ def _():
     import duckdb
 
     return (duckdb,)
+
+
+@app.cell
+def _():
+    import altair as alt
+    import polars as pl
+
+    return alt, pl
 
 
 @app.cell(hide_code=True)
@@ -56,6 +65,7 @@ def _(mo):
     - `person.manager_id` references `person` itself, so a manager is just another row of the same table.
     - `position_history` and `assignment` have no single-column id; their primary key is the two columns together, since one pairing (person + date, or person + project) names exactly one row.
     - The rule "a task is assigned only to somebody who works on its project" is **not** a `CHECK` here, because a `CHECK` can only look at one table's own columns, not compare `task` against `assignment`. Section 2 below says which two rows break this rule on purpose, and Part B question 7 finds them with a query instead.
+    - `person_workload` is a `CREATE VIEW` alongside the tables (Section 7 below), so anybody can ask for the current, live workload by name instead of re-writing the join.
     """)
     return
 
@@ -142,6 +152,19 @@ def _(database, duckdb, mo):
                 note         VARCHAR
             )
         """)
+        _con.execute("""
+            CREATE VIEW person_workload AS
+            SELECT
+                p.person_id,
+                p.first_name,
+                p.last_name,
+                sum(a.hours_per_week) AS total_hours_per_week
+            FROM person p
+            JOIN assignment a ON a.person_id = p.person_id
+            JOIN project pr ON pr.project_id = a.project_id
+            WHERE pr.status = 'active'
+            GROUP BY p.person_id, p.first_name, p.last_name
+        """)
 
         # person.manager_id points back at person itself, so DuckDB has to
         # check each row against the ones already loaded. Loading everyone in
@@ -179,12 +202,65 @@ def _(database, duckdb):
     return (ask,)
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 3. A Look at the Data
+
+    `task.created_date` by day of the week. A real company mostly opens new tasks on business days, so Saturday and Sunday should be far shorter bars than the five weekdays.
+    """)
+    return
+
+
+@app.cell
+def _(mo, pl):
+    _data_dir = mo.notebook_dir() / "data"
+    _tasks = pl.read_csv(_data_dir / "task.csv", try_parse_dates=True)
+
+    weekday_counts = (
+        _tasks.with_columns(pl.col("created_date").dt.strftime("%A").alias("weekday"))
+        .group_by("weekday")
+        .agg(pl.len().alias("tasks"))
+    )
+    return (weekday_counts,)
+
+
+@app.cell
+def _(alt, mo, weekday_counts):
+    _weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    weekday_chart = mo.ui.altair_chart(
+        weekday_counts.plot.bar(
+            x=alt.X("weekday", sort=_weekday_order, title="Day of the week"),
+            y=alt.Y("tasks", title="Tasks created"),
+        ).properties(title="Tasks created by day of the week")
+    )
+    weekday_chart
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    This now looks like a real company's calendar: I changed `make_data.py` so `created_date` is drawn only from weekdays (`random_weekday_date`), and Saturday sits at zero. A handful of tasks still land on Sunday, because for those tasks the earliest valid day — the assignee's join date — was itself a Sunday, with no weekday available before `AS_OF`.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 4. Row Counts
+    """)
+    return
+
+
 @app.cell
 def _(ask):
     ask("""
         SELECT
             (SELECT count(*) FROM person) AS people,
             (SELECT count(*) FROM project) AS projects,
+            (SELECT count(*) FROM position_history) AS position_history,
             (SELECT count(*) FROM assignment) AS assignments,
             (SELECT count(*) FROM task) AS tasks,
             (SELECT count(*) FROM expense) AS expenses
@@ -192,9 +268,85 @@ def _(ask):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 5. A Row It Refuses
+
+    `expense.amount` has `CHECK (amount > 0)`, so a negative expense should be refused. This cell opens its own short write connection, the way the build cell does, and wraps the insert in `try`/`except` so the rest of the notebook keeps running either way.
+    """)
+    return
+
+
+@app.cell
+def _(database, duckdb):
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute(
+                "INSERT INTO expense VALUES (99999, 1, '2026-01-01', -50.00, 'software', 'a refused row')"
+            )
+        refusal_message = "The database accepted this row, which should not happen."
+    except Exception as _error:
+        refusal_message = str(_error)
+
+    refusal_message
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 6. Answers You Already Knew
+
+    - `person` has **25** rows, because `make_data.py` sets `num_people = 25`.
+    - `project` has **14** rows, because `make_data.py` sets `num_projects = 14`.
+    - **2** tasks are assigned to someone who doesn't work on that task's project, because `make_data.py` always breaks that rule in exactly two rows on purpose.
+    """)
+    return
+
+
 @app.cell
 def _(ask):
-    ask("SELECT * FROM person LIMIT 10")
+    ask("SELECT count(*) AS people FROM person")
+    return
+
+
+@app.cell
+def _(ask):
+    ask("SELECT count(*) AS projects FROM project")
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT count(*) AS tasks_off_their_projects_team
+        FROM task t
+        LEFT JOIN assignment a
+            ON a.project_id = t.project_id AND a.person_id = t.assignee_id
+        WHERE t.assignee_id IS NOT NULL AND a.person_id IS NULL
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 7. A View
+
+    A question the founders would ask every week: "who is overloaded?" `person_workload` (created with the other tables, in Section 1's build cell) sums `hours_per_week` per person across their currently **active** projects, so anybody can ask for it by name and always get the current rows.
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT *
+        FROM person_workload
+        WHERE total_hours_per_week > 40
+        ORDER BY total_hours_per_week DESC
+    """)
     return
 
 
