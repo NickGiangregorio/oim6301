@@ -36,7 +36,7 @@ def _():
     import altair as alt
     import polars as pl
 
-    return alt, pl
+    return (alt,)
 
 
 @app.cell
@@ -393,7 +393,7 @@ def _(ask):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    **Answer:** Summit Realty is BabsonAI Labs' biggest client by contracted budget, at just over $700,000 across three projects — more than double the next closest client.
+    **Answer:** Summit Realty is BabsonAI Labs' biggest client by contracted budget, at just over $700,000 across three projects
     """)
     return
 
@@ -572,7 +572,7 @@ def _(mo):
     mo.md(r"""
     ## 5. Time Spent
 
-    _Fill in your own number of hours here — about how long the whole project took you outside class. It isn't graded._
+    _Fill in your own number of hours here — about how long the whole project took you outside class. 4-5 hours
     """)
     return
 
