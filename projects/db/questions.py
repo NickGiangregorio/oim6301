@@ -393,7 +393,7 @@ def _(ask):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    **Answer:** Summit Realty is BabsonAI Labs' biggest client by contracted budget, at just over $700,000 across three projects
+    **Answer:** Summit Realty is BabsonAI Labs' biggest client by contracted budget, at just over $700,000 across three projects,   which is close to double the next client.
     """)
     return
 
@@ -572,7 +572,7 @@ def _(mo):
     mo.md(r"""
     ## 5. Time Spent
 
-    _Fill in your own number of hours here — about how long the whole project took you outside class. 4-5 hours
+    About 4-5 hours, outside class.
     """)
     return
 

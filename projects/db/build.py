@@ -75,11 +75,11 @@ def _(mo):
     mo.md(r"""
     ## 2. The Data
 
-    `make_data.py` builds everything around one chosen "today," `AS_OF = 2026-11-08`, and covers the 12 months up to that date, from `2025-11-08` to `2026-11-08`.
+    `make_data.py` writes the CSV files in `data/`, following the scenario's rules, built around `AS_OF = 2026-11-08` (the "today" the data pretends it is) and covering the 12 months up to that date, from `2025-11-08` to `2026-11-08`.
 
-    `make_data.py` writes the CSV files in `data/`, following the scenario's rules, with one exception on purpose: two `task` rows are assigned to a real person who does not work on that task's project, breaking the rule behind Part B question 7 — tasks **29** and **119**. `make_data.py` prints these same two ids when it runs.
+    There is one exception on purpose: two `task` rows are assigned to a real person who does not work on that task's project, breaking the rule behind Part B question 7. `make_data.py` prints which two task ids those are when it runs; with the fixed random seed, they are always task ids **29** and **119**.
 
-    `make_data.py` also includes rows with nothing attached, on purpose: about 15% of tasks have no `assignee_id` yet, and projects still in "planned" status have no `expense` rows at all, because no real work — and no spending — has started on them. The second one started as a bug: the agent's first version of `make_expenses()` gave every project expenses regardless of status, which made Part B's "which projects haven't spent anything yet?" question always come back empty. Fixing it in `make_expenses()` and rebuilding is what gave that question a real answer; Part B's "Working With the Agent" section says more.
+    `make_data.py` also includes rows with nothing attached, on purpose: about 15% of tasks have no `assignee_id` yet, and projects still in "planned" status have no `expense` rows at all, because no real work — andno spending — has started on them. The second one started as a bug: the agent's first version of `make_expenses()` gave every project expenses regardless of status, which made Part B's "which projects haven't spent anything yet?" question always come back empty. Fixing it in `make_expenses()` and rebuilding is what gave that question a real answer; Part B's "Working With the Agent" section says more.
     """)
     return
 
