@@ -216,6 +216,45 @@ def _(mo):
     return
 
 
+@app.cell
+def _(ask, towns_database):
+    ask(towns_database, """
+        SELECT count(*)
+        FROM towns
+        JOIN counties ON towns.county = counties.name
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The count equals the number of rows in towns because each town belongs to exactly one county. The join matches every town to exactly one county row, since county_id is unique in counties. It doesn’t drop any towns because none has a missing or unmatched county, and it doesn’t duplicate any because there are no repeated matches. A many-to-one join like this preserves the row count of the “many” side.
+
+
+    Nantucket’s share is exactly 100 because Nantucket County contains only one town, Nantucket. The county’s total population is therefore just that town’s population, so the ratio is population / population = 1, or 100%.
+    """)
+    return
+
+
+@app.cell
+def _(ask, towns_database):
+    ask(towns_database, """
+        SELECT t.name, c.name AS county, t.population,
+               round(100.0 * t.population / c.population, 1) AS pct_of_county
+        FROM towns AS t
+        JOIN counties AS c ON t.county = c.name
+        ORDER BY pct_of_county DESC
+        LIMIT 5
+    """)
+    return
+
+
+@app.cell
+def _():
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
