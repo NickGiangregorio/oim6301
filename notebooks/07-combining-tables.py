@@ -1,4 +1,4 @@
-# /// script
+u# /// script
 # requires-python = ">=3.12,<3.15"
 # dependencies = [
 #     "marimo[sql]",
@@ -15,7 +15,7 @@
 
 import marimo
 
-__generated_with = "0.24.2"
+__generated_with = "0.25.1"
 app = marimo.App(width="medium", sql_output="polars")
 
 
@@ -216,45 +216,6 @@ def _(mo):
     return
 
 
-@app.cell
-def _(ask, towns_database):
-    ask(towns_database, """
-        SELECT count(*)
-        FROM towns
-        JOIN counties ON towns.county = counties.name
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    The count equals the number of rows in towns because each town belongs to exactly one county. The join matches every town to exactly one county row, since county_id is unique in counties. It doesn’t drop any towns because none has a missing or unmatched county, and it doesn’t duplicate any because there are no repeated matches. A many-to-one join like this preserves the row count of the “many” side.
-
-
-    Nantucket’s share is exactly 100 because Nantucket County contains only one town, Nantucket. The county’s total population is therefore just that town’s population, so the ratio is population / population = 1, or 100%.
-    """)
-    return
-
-
-@app.cell
-def _(ask, towns_database):
-    ask(towns_database, """
-        SELECT t.name, c.name AS county, t.population,
-               round(100.0 * t.population / c.population, 1) AS pct_of_county
-        FROM towns AS t
-        JOIN counties AS c ON t.county = c.name
-        ORDER BY pct_of_county DESC
-        LIMIT 5
-    """)
-    return
-
-
-@app.cell
-def _():
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -312,17 +273,6 @@ def _(mo):
     *Check yourself: four territories, Columbia, Bentonville, Dallas and Austin.*
 
     **Going further.** List the employees with the number of territories each covers, and check that the counts add up to the rows of `employee_territories`. Then find the same four territories with `WHERE NOT EXISTS (...)`.
-    """)
-    return
-
-
-@app.cell
-def _(ask, northwind_database):
-    ask(northwind_database, """
-        SELECT t.TerritoryID, t.TerritoryDescription
-        FROM territories AS t
-        LEFT JOIN employee_territories AS e ON e.TerritoryID = t.TerritoryID
-        WHERE e.TerritoryID IS NULL
     """)
     return
 
@@ -428,17 +378,6 @@ def _(mo):
     return
 
 
-@app.cell
-def _(ask, northwind_database):
-    ask(northwind_database, """
-        SELECT ShipCountry, round(sum(Freight), 2) AS total_freight
-        FROM orders
-        GROUP BY ShipCountry
-        ORDER BY total_freight DESC
-    """)
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -455,33 +394,6 @@ def _(mo):
     *Check yourself: Beverages first, with about 13,375,939, and all eight, added before rounding, give 63,856,337.63.*
 
     **Going further.** Compute revenue by category for each year, and find the category that grew the most.
-    """)
-    return
-
-
-@app.cell
-def _(ask, northwind_database):
-    ask(northwind_database, """
-        SELECT cat.CategoryName,
-               round(sum(d.UnitPrice * d.Quantity * (1 - d.Discount)), 2) AS revenue
-        FROM orders AS o
-        JOIN order_details AS d ON d.OrderID = o.OrderID
-        JOIN products AS p ON p.ProductID = d.ProductID
-        JOIN categories AS cat ON cat.CategoryID = p.CategoryID
-        WHERE o.ShipCountry = \'USA\'
-        GROUP BY cat.CategoryName
-        ORDER BY revenue DESC
-    """)
-    return
-
-
-@app.cell
-def _(ask, northwind_database):
-    ask(northwind_database, """
-        SELECT round(sum(d.UnitPrice * d.Quantity * (1 - d.Discount)), 2) AS total_revenue_usa
-        FROM orders AS o
-        JOIN order_details AS d ON d.OrderID = o.OrderID
-        WHERE o.ShipCountry = \'USA\'
     """)
     return
 
@@ -554,55 +466,6 @@ def _(mo):
     3. Find the customers in `Sales.Customer` who never placed an order, and the products in `Production.Product` that never sold. *Check yourself: 701 customers and 238 products.*
 
     **Going further.** Answer one question of your own about AdventureWorks that needs three tables, and check it against a total you can get from one of them.
-    """)
-    return
-
-
-@app.cell
-def _(ask_server):
-    ask_server("""
-        SELECT
-            (SELECT count(*) FROM Sales.SalesOrderHeader) AS headers,
-            (SELECT count(*) FROM Sales.SalesOrderDetail) AS details,
-            (SELECT count(*)
-             FROM Sales.SalesOrderHeader AS h
-             JOIN Sales.SalesOrderDetail AS d ON d.SalesOrderID = h.SalesOrderID) AS joined
-    """)
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(r"""
-    The join has as many rows as `Sales.SalesOrderDetail`, not `Sales.SalesOrderHeader`, because each row of `Sales.SalesOrderDetail` is one line of one order, and every line names exactly one `SalesOrderID` that exists in `Sales.SalesOrderHeader`. So each of the 121,317 lines finds exactly one matching header row, and the join keeps all 121,317. The 31,465 headers are not all used once each: an order with several lines is matched several times, once per line, which is why the join is the same size as the table with more rows, `Sales.SalesOrderDetail`, not the average of the two.
-    """)
-    return
-
-
-@app.cell
-def _(ask_server):
-    ask_server("""
-        SELECT
-            (SELECT sum(Freight) FROM Sales.SalesOrderHeader) AS freight,
-            (SELECT sum(h.Freight)
-             FROM Sales.SalesOrderHeader AS h
-             JOIN Sales.SalesOrderDetail AS d ON d.SalesOrderID = h.SalesOrderID) AS freight_after_the_join
-    """)
-    return
-
-
-@app.cell
-def _(ask_server):
-    ask_server("""
-        SELECT
-            (SELECT count(*)
-             FROM Sales.Customer AS c
-             LEFT JOIN Sales.SalesOrderHeader AS h ON h.CustomerID = c.CustomerID
-             WHERE h.CustomerID IS NULL) AS customers_with_no_order,
-            (SELECT count(*)
-             FROM Production.Product AS p
-             LEFT JOIN Sales.SalesOrderDetail AS d ON d.ProductID = p.ProductID
-             WHERE d.ProductID IS NULL) AS products_never_sold
     """)
     return
 
