@@ -204,11 +204,6 @@ def _(ask):
     return
 
 
-@app.cell
-def _():
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -278,11 +273,6 @@ def _(database, duckdb):
         foreign_key_check = str(_error).splitlines()[0]
 
     duplicate_check, foreign_key_check
-    return
-
-
-@app.cell
-def _():
     return
 
 
@@ -469,6 +459,45 @@ def _(mo):
     return
 
 
+@app.cell
+def _(ask):
+    ask("""
+        SELECT c.name AS county, count(t.name) AS towns_counted, c.towns AS towns_listed
+        FROM counties AS c
+        JOIN towns AS t ON t.county = c.name
+        GROUP BY c.name, c.towns
+        ORDER BY c.name
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT
+            county,
+            sum(population) AS total_population,
+            sum(CASE WHEN average_single_family_bill_dollars > 10000 THEN population ELSE 0 END)
+                AS population_in_high_bill_towns,
+            round(
+                100.0 * sum(CASE WHEN average_single_family_bill_dollars > 10000 THEN population ELSE 0 END)
+                / sum(population), 1
+            ) AS pct_in_high_bill_towns
+        FROM towns
+        GROUP BY county
+        ORDER BY county
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    The sum of the county counts has to equal the number of rows in `towns`, because `GROUP BY` sorts every row from `towns` into exactly one group, the group named by its own `county` value, and `count(*)` adds up to one row for each one counted. No row is left out and no row is counted twice, so the counts have to add back up to the whole table, 351.
+    """)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -517,7 +546,7 @@ def _(ask, mo, requests):
         _path.write_bytes(_reply.content)
     orders_file = _path.as_posix()
     ask(f"SELECT count(*) AS orders FROM '{orders_file}'")
-    return
+    return (orders_file,)
 
 
 @app.cell(hide_code=True)
@@ -528,6 +557,23 @@ def _(mo):
 
     **Going further.** Rank the countries by freight per order instead, and see which countries move.
     """)
+    return
+
+
+@app.cell
+def _(ask, orders_file):
+    ask(f"""
+        SELECT ShipCountry, count(*) AS orders, sum(Freight) AS total_freight
+        FROM '{orders_file}'
+        GROUP BY ShipCountry
+        ORDER BY total_freight DESC
+    """)
+    return
+
+
+@app.cell
+def _(ask, orders_file):
+    ask(f"SELECT count(DISTINCT ShipCountry) AS countries FROM '{orders_file}'")
     return
 
 
